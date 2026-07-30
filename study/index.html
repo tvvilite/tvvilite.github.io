@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Растения против Зомби - Ultimate Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #090d16;
+            color: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(34, 197, 94, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 45%);
+        }
+
+        .header {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        #game-container {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            background: #111827;
+        }
+
+        #ui-bar {
+            width: 950px;
+            height: 95px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+            padding: 0 16px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sun-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(250, 204, 21, 0.1);
+            padding: 8px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(250, 204, 21, 0.25);
+            color: #facc15;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .sun-card span.icon {
+            font-size: 1.5rem;
+            animation: pulseSun 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseSun {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .plant-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .plant-card {
+            width: 68px;
+            height: 72px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .plant-card .emoji {
+            font-size: 1.7rem;
+            line-height: 1;
+        }
+
+        .plant-card .cost {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #facc15;
+            margin-top: 4px;
+        }
+
+        .plant-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .plant-card.selected {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+            transform: translateY(-3px) scale(1.04);
+        }
+
+        .plant-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(80%);
+        }
+
+        /* Инструмент Лопата */
+        .tool-card {
+            width: 68px;
+            height: 72px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tool-card .emoji {
+            font-size: 1.7rem;
+        }
+
+        .tool-card .label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #fca5a5;
+            margin-top: 2px;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .tool-card.selected {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            transform: translateY(-3px) scale(1.04);
+        }
+
+        .stats-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: flex-end;
+        }
+
+        .stat-badge {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .score-val {
+            color: #38bdf8;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        canvas {
+            display: block;
+            background-color: #43a047;
+            cursor: pointer;
+        }
+
+        /* Overlay & Screens */
+        .screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .screen-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 36px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            max-width: 480px;
+            width: 90%;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .screen-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-card.gameover h2 {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-card p {
+            color: #94a3b8;
+            margin: 0 0 20px 0;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(34, 197, 94, 0.5);
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        .rules-list {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .rules-list div {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rules-list div:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🌱 Растения против Зомби 🧟</h1>
+    </div>
+    
+    <div id="game-container">
+        <!-- UI Панель -->
+        <div id="ui-bar">
+            <div class="sun-card">
+                <span class="icon">☀️</span>
+                <span id="sun-count">100</span>
+            </div>
+
+            <!-- Селектор растений -->
+            <div class="plant-selector" id="plantSelector">
+                <div class="plant-card selected" data-type="peashooter" data-cost="50">
+                    <span class="emoji">🌱</span>
+                    <span class="cost">50☀️</span>
+                </div>
+                <div class="plant-card" data-type="sunflower" data-cost="50">
+                    <span class="emoji">🌻</span>
+                    <span class="cost">50☀️</span>
+                </div>
+                <div class="plant-card" data-type="walnut" data-cost="50">
+                    <span class="emoji">🥔</span>
+                    <span class="cost">50☀️</span>
+                </div>
+                <div class="plant-card" data-type="snowpea" data-cost="75">
+                    <span class="emoji">❄️</span>
+                    <span class="cost">75☀️</span>
+                </div>
+                <div class="plant-card" data-type="cherrybomb" data-cost="150">
+                    <span class="emoji">🍒</span>
+                    <span class="cost">150☀️</span>
+                </div>
+                <div class="plant-card" data-type="repeater" data-cost="125">
+                    <span class="emoji">🌿</span>
+                    <span class="cost">125☀️</span>
+                </div>
+            </div>
+
+            <!-- Инструмент Лопата -->
+            <div class="tool-card" id="shovelTool">
+                <span class="emoji">🪜</span>
+                <span class="label">ЛОПАТА</span>
+            </div>
+
+            <div class="stats-group">
+                <div class="stat-badge">Счёт: <span class="score-val" id="score-count">0</span></div>
+                <div class="stat-badge">Волна: <span class="score-val" style="color:#a855f7" id="wave-count">1</span></div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="950" height="500"></canvas>
+        
+        <!-- Главное Меню -->
+        <div class="screen-overlay active" id="startScreen">
+            <div class="modal-card">
+                <h2>ULTIMATE EDITION</h2>
+                <p>Новые фишки: Газонокосилки, Ледяной Горох и Лопата!</p>
+
+                <div class="rules-list">
+                    <div>🚜 <b>Газонокосилки</b>: По одной на каждый ряд! Одноразовое спасение от зомби.</div>
+                    <div>🪜 <b>Лопата</b>: Нажмите на лопату, затем на клетку, чтобы выкопать растение.</div>
+                    <div>❄️ <b>Ледяной горох (75☀️)</b>: Замедляет и замораживает зомби!</div>
+                    <div>🌱 <b>Горохострел (50☀️)</b> | 🌻 <b>Подсолнух (50☀️)</b> | 🥔 <b>Орех (50☀️)</b></div>
+                    <div>🍒 <b>Вишня (150☀️)</b> | 🌿 <b>Двойной горох (125☀️)</b></div>
+                </div>
+
+                <button class="btn-action" id="startBtn">ИГРАТЬ</button>
+            </div>
+        </div>
+
+        <!-- Экран Game Over -->
+        <div class="screen-overlay" id="gameOverScreen">
+            <div class="modal-card gameover">
+                <h2>ИГРА ОКОНЧЕНА!</h2>
+                <p>🧟 Зомби ворвались в ваш дом!<br>Вы продержались волн: <b id="final-waves" style="color:#f8fafc">0</b></p>
+                <button class="btn-action" id="restartBtn">ПОПРОБОВАТЬ СНОВА</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const sunCountElement = document.getElementById('sun-count');
+        const scoreCountElement = document.getElementById('score-count');
+        const waveCountElement = document.getElementById('wave-count');
+        const finalWavesElement = document.getElementById('final-waves');
+        
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const shovelTool = document.getElementById('shovelTool');
+
+        // Настройки сетки
+        const cellSize = 100;
+        const rows = 5;
+        const cols = 950 / 100; // 9.5 клеток (0 - косилки, 1..9 - газон)
+
+        // Игровое состояние
+        let sun = 100;
+        let score = 0;
+        let wave = 1;
+        let gameOver = false;
+        let isGameRunning = false;
+        let selectedMode = 'plant'; // 'plant' или 'shovel'
+        let selectedPlantType = 'peashooter';
+
+        let lastTime = performance.now();
+
+        let plants = [];
+        let zombies = [];
+        let projectiles = [];
+        let suns = [];
+        let lawnmowers = [];
+        let particles = [];
+
+        // Переключение на лопату
+        shovelTool.addEventListener('click', () => {
+            if (selectedMode === 'shovel') {
+                selectedMode = 'plant';
+                shovelTool.classList.remove('selected');
+            } else {
+                selectedMode = 'shovel';
+                shovelTool.classList.add('selected');
+                plantCards.forEach(c => c.classList.remove('selected'));
+            }
+        });
+
+        // Выбор растения в UI
+        const plantCards = document.querySelectorAll('.plant-card');
+        plantCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const cost = parseInt(card.dataset.cost);
+                if (sun >= cost) {
+                    selectedMode = 'plant';
+                    shovelTool.classList.remove('selected');
+                    plantCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedPlantType = card.dataset.type;
+                }
+            });
+        });
+
+        function updatePlantCardsUI() {
+            plantCards.forEach(card => {
+                const cost = parseInt(card.dataset.cost);
+                if (sun < cost) {
+                    card.classList.add('disabled');
+                } else {
+                    card.classList.remove('disabled');
+                }
+            });
+        }
+
+        // --- КЛАСС ГАЗОНОКОСИЛКИ ---
+        class Lawnmower {
+            constructor(y) {
+                this.x = 10;
+                this.y = y;
+                this.width = 70;
+                this.height = cellSize;
+                this.isActive = false;
+                this.speed = 450; // Высокая скорость при активации
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.font = '45px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🚜', this.x + 35, this.y + cellSize / 2);
+                ctx.restore();
+            }
+
+            update(dt) {
+                if (this.isActive) {
+                    this.x += this.speed * dt;
+                }
+            }
+        }
+
+        // --- КЛАССЫ РАСТЕНИЙ ---
+        class Plant {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.width = cellSize;
+                this.height = cellSize;
+                this.timer = 0;
+
+                switch(type) {
+                    case 'sunflower':
+                        this.health = 80;
+                        this.emoji = '🌻';
+                        break;
+                    case 'walnut':
+                        this.health = 400;
+                        this.emoji = '🥔';
+                        break;
+                    case 'snowpea':
+                        this.health = 100;
+                        this.emoji = '❄️';
+                        break;
+                    case 'cherrybomb':
+                        this.health = 300;
+                        this.emoji = '🍒';
+                        this.explodeTimer = 0;
+                        break;
+                    case 'repeater':
+                        this.health = 100;
+                        this.emoji = '🌿';
+                        break;
+                    case 'peashooter':
+                    default:
+                        this.health = 100;
+                        this.emoji = '🌱';
+                        break;
+                }
+                this.maxHealth = this.health;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                const bounce = Math.sin(performance.now() * 0.005 + this.x) * 3;
+                
+                if (this.type === 'sunflower') {
+                    ctx.shadowColor = '#facc15';
+                    ctx.shadowBlur = 10;
+                } else if (this.type === 'snowpea') {
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 10;
+                }
+
+                ctx.font = '54px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, this.x + cellSize / 2, this.y + cellSize / 2 + bounce);
+
+                // Здоровье
+                if (this.health < this.maxHealth) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                    ctx.fillRect(this.x + 15, this.y + 85, 70, 6);
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(this.x + 15, this.y + 85, 70 * (this.health / this.maxHealth), 6);
+                }
+                ctx.restore();
+            }
+
+            update(dt) {
+                this.timer += dt;
+
+                if (this.type === 'peashooter') {
+                    if (this.timer >= 1.5) {
+                        this.timer = 0;
+                        if (zombies.some(z => z.y === this.y && z.x > this.x)) {
+                            projectiles.push(new Projectile(this.x + 60, this.y + 50, 'normal'));
+                        }
+                    }
+                } else if (this.type === 'snowpea') {
+                    if (this.timer >= 1.5) {
+                        this.timer = 0;
+                        if (zombies.some(z => z.y === this.y && z.x > this.x)) {
+                            projectiles.push(new Projectile(this.x + 60, this.y + 50, 'ice'));
+                        }
+                    }
+                } else if (this.type === 'repeater') {
+                    if (this.timer >= 1.5) {
+                        this.timer = 0;
+                        if (zombies.some(z => z.y === this.y && z.x > this.x)) {
+                            projectiles.push(new Projectile(this.x + 50, this.y + 50, 'normal'));
+                            setTimeout(() => {
+                                projectiles.push(new Projectile(this.x + 70, this.y + 50, 'normal'));
+                            }, 150);
+                        }
+                    }
+                } else if (this.type === 'sunflower') {
+                    if (this.timer >= 7.5) {
+                        this.timer = 0;
+                        suns.push(new Sun(this.x + 30, this.y + 30, true));
+                    }
+                } else if (this.type === 'cherrybomb') {
+                    this.explodeTimer += dt;
+                    if (this.explodeTimer >= 1.0) {
+                        for (let z of zombies) {
+                            const dist = Math.hypot((z.x + 50) - (this.x + 50), (z.y + 50) - (this.y + 50));
+                            if (dist < 180) {
+                                z.health -= 300;
+                            }
+                        }
+                        for (let i = 0; i < 20; i++) {
+                            particles.push(new Particle(this.x + 50, this.y + 50, '#ef4444'));
+                        }
+                        this.health = 0;
+                    }
+                }
+            }
+        }
+
+        // --- КЛАССЫ ЗОМБИ ---
+        class Zombie {
+            constructor(y, type = 'normal') {
+                this.x = canvas.width;
+                this.y = y;
+                this.type = type;
+                this.width = cellSize;
+                this.height = cellSize;
+                this.freezeTimer = 0;
+
+                switch(type) {
+                    case 'conehead':
+                        this.health = 220;
+                        this.baseSpeed = 18;
+                        this.emoji = '🧟‍♂️';
+                        break;
+                    case 'buckethead':
+                        this.health = 400;
+                        this.baseSpeed = 14;
+                        this.emoji = '🧟‍♀️';
+                        break;
+                    case 'fast':
+                        this.health = 90;
+                        this.baseSpeed = 35;
+                        this.emoji = '🏃‍♂️';
+                        break;
+                    case 'normal':
+                    default:
+                        this.health = 100;
+                        this.baseSpeed = 20;
+                        this.emoji = '🧟';
+                        break;
+                }
+                this.speed = this.baseSpeed;
+                this.maxHealth = this.health;
+                this.isEating = false;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                const walkCycle = Math.sin(performance.now() * 0.008 + this.x) * 4;
+
+                // Визуальный эффект заморозки
+                if (this.freezeTimer > 0) {
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 15;
+                }
+
+                ctx.font = '54px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, this.x + cellSize / 2, this.y + cellSize / 2 + walkCycle);
+
+                if (this.type === 'conehead' && this.health > 100) {
+                    ctx.font = '24px Arial';
+                    ctx.fillText('📐', this.x + cellSize / 2 + 10, this.y + 20);
+                } else if (this.type === 'buckethead' && this.health > 100) {
+                    ctx.font = '24px Arial';
+                    ctx.fillText('🪣', this.x + cellSize / 2 + 10, this.y + 20);
+                }
+
+                const barWidth = 60;
+                const barX = this.x + (cellSize - barWidth) / 2;
+                const barY = this.y + 10;
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+                ctx.fillRect(barX - 2, barY - 2, barWidth + 4, 8);
+                
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(barX, barY, barWidth, 4);
+                
+                ctx.fillStyle = (this.freezeTimer > 0) ? '#38bdf8' : '#22c55e';
+                ctx.fillRect(barX, barY, barWidth * (Math.max(0, this.health) / this.maxHealth), 4);
+                ctx.restore();
+            }
+
+            update(dt) {
+                if (this.freezeTimer > 0) {
+                    this.freezeTimer -= dt;
+                    this.speed = this.baseSpeed * 0.5; // 50% замедление
+                } else {
+                    this.speed = this.baseSpeed;
+                }
+
+                if (!this.isEating) {
+                    this.x -= this.speed * dt;
+                }
+                this.isEating = false;
+            }
+        }
+
+        // --- КЛАСС СНАРЯДА ---
+        class Projectile {
+            constructor(x, y, type = 'normal') {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.speed = 360;
+                this.power = 25;
+                this.radius = 9;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                const gradient = ctx.createRadialGradient(this.x - 2, this.y - 2, 1, this.x, this.y, this.radius);
+                
+                if (this.type === 'ice') {
+                    gradient.addColorStop(0, '#e0f2fe');
+                    gradient.addColorStop(0.6, '#38bdf8');
+                    gradient.addColorStop(1, '#0284c7');
+                    ctx.shadowColor = '#38bdf8';
+                } else {
+                    gradient.addColorStop(0, '#bbf7d0');
+                    gradient.addColorStop(0.6, '#4ade80');
+                    gradient.addColorStop(1, '#15803d');
+                    ctx.shadowColor = '#4ade80';
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                ctx.shadowBlur = 8;
+                ctx.strokeStyle = (this.type === 'ice') ? '#0369a1' : '#166534';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.closePath();
+                ctx.restore();
+            }
+
+            update(dt) {
+                this.x += this.speed * dt;
+            }
+        }
+
+        // --- КЛАСС СОЛНЦА ---
+        class Sun {
+            constructor(x, y, fromPlant = false) {
+                this.x = x;
+                this.y = fromPlant ? y : -30;
+                this.targetY = fromPlant ? y : Math.random() * (canvas.height - 120) + 40;
+                this.speed = 80;
+                this.lifespan = 8.0;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.font = '36px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#facc15';
+                ctx.shadowBlur = 12;
+                ctx.fillText('☀️', this.x, this.y);
+                ctx.restore();
+            }
+
+            update(dt) {
+                if (this.y < this.targetY) {
+                    this.y += this.speed * dt;
+                }
+                this.lifespan -= dt;
+            }
+        }
+
+        // --- ЧАСТИЦЫ ---
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.vx = (Math.random() - 0.5) * 200;
+                this.vy = (Math.random() - 0.5) * 200;
+                this.radius = Math.random() * 4 + 2;
+                this.life = 0.5;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = Math.max(0, this.life / 0.5);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update(dt) {
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                this.life -= dt;
+            }
+        }
+
+        // Отрисовка газона и зоны косилок
+        function drawGrid() {
+            // Зона газонокосилок (колонка 0)
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillRect(0, 0, cellSize, canvas.height);
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 1; c < 10; c++) {
+                    const x = c * cellSize;
+                    const y = r * cellSize;
+                    
+                    ctx.fillStyle = ((r + c) % 2 === 0) ? '#43a047' : '#388e3c';
+                    ctx.fillRect(x, y, cellSize, cellSize);
+
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x, y, cellSize, cellSize);
+                }
+            }
+        }
+
+        // Обработка клика
+        canvas.addEventListener('click', (e) => {
+            if (!isGameRunning || gameOver) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // 1. Сбор Солнца
+            for (let i = suns.length - 1; i >= 0; i--) {
+                const s = suns[i];
+                const dist = Math.hypot(s.x - mouseX, s.y - mouseY);
+                if (dist < 35) {
+                    sun += 25;
+                    sunCountElement.innerText = sun;
+                    updatePlantCardsUI();
+                    for (let k = 0; k < 8; k++) {
+                        particles.push(new Particle(s.x, s.y, '#facc15'));
+                    }
+                    suns.splice(i, 1);
+                    return;
+                }
+            }
+
+            // 2. Действия на поле (Лопата или Посадка)
+            const gridX = Math.floor(mouseX / cellSize) * cellSize;
+            const gridY = Math.floor(mouseY / cellSize) * cellSize;
+
+            // Нельзя сажать в колонку 0 (там косилки)
+            if (gridX < cellSize) return;
+
+            const plantIndex = plants.findIndex(p => p.x === gridX && p.y === gridY);
+
+            if (selectedMode === 'shovel') {
+                if (plantIndex !== -1) {
+                    // Выкапываем растение
+                    for (let k = 0; k < 10; k++) {
+                        particles.push(new Particle(gridX + 50, gridY + 50, '#a16207'));
+                    }
+                    plants.splice(plantIndex, 1);
+                }
+            } else if (selectedMode === 'plant') {
+                const card = Array.from(plantCards).find(c => c.dataset.type === selectedPlantType);
+                const cost = parseInt(card.dataset.cost);
+
+                if (plantIndex === -1 && sun >= cost) {
+                    plants.push(new Plant(gridX, gridY, selectedPlantType));
+                    sun -= cost;
+                    sunCountElement.innerText = sun;
+                    updatePlantCardsUI();
+                }
+            }
+        });
+
+        let zombieTimer = 0;
+        let naturalSunTimer = 0;
+
+        function startNewGame() {
+            sun = 100;
+            score = 0;
+            wave = 1;
+            gameOver = false;
+            isGameRunning = true;
+            plants = [];
+            zombies = [];
+            projectiles = [];
+            suns = [];
+            particles = [];
+            zombieTimer = 0;
+            naturalSunTimer = 0;
+
+            // Создание газонокосилок для каждого ряда
+            lawnmowers = [];
+            for (let r = 0; r < rows; r++) {
+                lawnmowers.push(new Lawnmower(r * cellSize));
+            }
+
+            sunCountElement.innerText = sun;
+            scoreCountElement.innerText = score;
+            waveCountElement.innerText = wave;
+            updatePlantCardsUI();
+
+            startScreen.classList.remove('active');
+            gameOverScreen.classList.remove('active');
+
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        startBtn.addEventListener('click', startNewGame);
+        restartBtn.addEventListener('click', startNewGame);
+
+        // --- ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ ---
+        function gameLoop(now) {
+            if (!isGameRunning) return;
+
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+
+            if (gameOver) {
+                finalWavesElement.innerText = wave;
+                gameOverScreen.classList.add('active');
+                isGameRunning = false;
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+
+            // Спавн солнца
+            naturalSunTimer += dt;
+            if (naturalSunTimer >= 7) {
+                naturalSunTimer = 0;
+                suns.push(new Sun(Math.random() * (canvas.width - 200) + 150, 0));
+            }
+
+            // Спавн зомби
+            zombieTimer += dt;
+            const spawnInterval = Math.max(3.0, 8.5 - wave * 0.7);
+            if (zombieTimer >= spawnInterval) {
+                zombieTimer = 0;
+                const randomRow = Math.floor(Math.random() * rows) * cellSize;
+                
+                const rand = Math.random();
+                let zType = 'normal';
+                if (wave >= 2 && rand > 0.6) zType = 'conehead';
+                if (wave >= 3 && rand > 0.8) zType = 'buckethead';
+                if (wave >= 2 && rand < 0.2) zType = 'fast';
+
+                zombies.push(new Zombie(randomRow, zType));
+            }
+
+            wave = Math.floor(score / 100) + 1;
+            waveCountElement.innerText = wave;
+
+            // 1. Газонокосилки
+            for (let i = lawnmowers.length - 1; i >= 0; i--) {
+                const lm = lawnmowers[i];
+                lm.update(dt);
+                lm.draw(ctx);
+
+                // Если активированная косилка уехала за экран - удаляем
+                if (lm.x > canvas.width + 50) {
+                    lawnmowers.splice(i, 1);
+                }
+            }
+
+            // 2. Солнца
+            for (let i = suns.length - 1; i >= 0; i--) {
+                const s = suns[i];
+                s.update(dt);
+                s.draw(ctx);
+                if (s.lifespan <= 0) suns.splice(i, 1);
+            }
+
+            // 3. Растения
+            for (let i = plants.length - 1; i >= 0; i--) {
+                const p = plants[i];
+                p.update(dt);
+                p.draw(ctx);
+                if (p.health <= 0) plants.splice(i, 1);
+            }
+
+            // 4. Снаряды
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const proj = projectiles[i];
+                proj.update(dt);
+                proj.draw(ctx);
+
+                if (proj.x > canvas.width + 20) {
+                    projectiles.splice(i, 1);
+                }
+            }
+
+            // 5. Зомби & Взаимодействия
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                const z = zombies[i];
+                z.update(dt);
+                z.draw(ctx);
+
+                // Взаимодействие с Газонокосилками
+                for (let lm of lawnmowers) {
+                    if (z.y === lm.y && z.x < lm.x + 50 && z.x + 50 > lm.x) {
+                        if (!lm.isActive) {
+                            lm.isActive = true; // Запуск газонокосилки!
+                        }
+                        z.health = -999; // Газонокосилка мгновенно давит зомби
+                    }
+                }
+
+                // Проиграли только если зомби зашёл за левый край (за косилки)
+                if (z.x < -30) {
+                    gameOver = true;
+                }
+
+                // Попадания снарядов
+                for (let j = projectiles.length - 1; j >= 0; j--) {
+                    const proj = projectiles[j];
+                    if (proj.x > z.x + 10 && proj.x < z.x + cellSize - 10 && proj.y > z.y && proj.y < z.y + cellSize) {
+                        z.health -= proj.power;
+                        
+                        if (proj.type === 'ice') {
+                            z.freezeTimer = 3.0; // 3 секунды заморозки
+                        }
+
+                        const pColor = (proj.type === 'ice') ? '#38bdf8' : '#4ade80';
+                        for (let k = 0; k < 4; k++) {
+                            particles.push(new Particle(proj.x, proj.y, pColor));
+                        }
+                        
+                        projectiles.splice(j, 1);
+                    }
+                }
+
+                // Зомби поедают растения
+                for (let k = plants.length - 1; k >= 0; k--) {
+                    const plant = plants[k];
+                    if (z.x < plant.x + cellSize - 25 && z.x + cellSize > plant.x + 25 && z.y === plant.y) {
+                        z.isEating = true;
+                        plant.health -= 40 * dt;
+                    }
+                }
+
+                // Смерть зомби
+                if (z.health <= 0) {
+                    for (let k = 0; k < 10; k++) {
+                        particles.push(new Particle(z.x + 50, z.y + 50, '#a855f7'));
+                    }
+                    zombies.splice(i, 1);
+                    score += 15;
+                    scoreCountElement.innerText = score;
+                }
+            }
+
+            // 6. Частицы
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const pt = particles[i];
+                pt.update(dt);
+                pt.draw(ctx);
+                if (pt.life <= 0) particles.splice(i, 1);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
