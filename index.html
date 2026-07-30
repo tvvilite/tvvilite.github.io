@@ -1,934 +1,576 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Dev Interactive Sandbox & Guide</title>
+    <title>Portfolio | LE VITALIY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- 기본 설정 및 부드러운 스크롤 --- */
-        html { scroll-behavior: smooth; }
-        
-        body {
-            font-family: 'Pretendard', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            margin: 0;
-            padding-top: 80px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s, color 0.3s;
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333333;
+            --header-bg: #8a1538; 
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --primary-color: #8a1538;
+            --tag-bg: #e9ecef;
+            --tag-text: #495057;
+            --note-color: #666666;
+            --shadow: rgba(0,0,0,0.1);
+            --img-placeholder: #e0e0e0;
         }
 
-        /* --- 다크 모드 (Dark Mode) --- */
-        body.dark-mode { background-color: #0f172a; color: #cbd5e1; }
-        body.dark-mode header { background-color: #1e293b; border-bottom: 1px solid #334155; }
-        body.dark-mode .card { background-color: #1e293b; color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode select, body.dark-mode input[type="range"] { background-color: #334155; color: #fff; border-color: #475569; }
-        body.dark-mode pre { background-color: #020617; color: #a6e22e; }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --header-bg: #1a1a1a;
+            --card-bg: rgba(30, 30, 30, 0.95);
+            --primary-color: #d1305c; 
+            --tag-bg: #333333;
+            --tag-text: #cccccc;
+            --note-color: #aaaaaa;
+            --shadow: rgba(0,0,0,0.4);
+            --img-placeholder: #2a2a2a;
+        }
 
-        /* --- 상단 고정 헤더 --- */
-        header {
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+        }
+
+        #canvas-bg {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 65px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: var(--header-bg);
+            box-shadow: 0 2px 10px var(--shadow);
             transition: background-color 0.3s;
         }
-
-        .lang-picker select {
-            padding: 8px 12px;
-            font-size: 14px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            font-weight: bold;
-            cursor: pointer;
-            outline: none;
-        }
-
-        /* 중앙 네비게이션 */
-        .nav-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-center a {
-            text-decoration: none;
-            color: #475569;
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #f1f5f9;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        body.dark-mode .nav-center a { background: #334155; color: #cbd5e1; }
-
-        .nav-center a:hover {
-            background-color: #3b82f6;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* --- 레이아웃 및 카드 --- */
-        .container {
-            max-width: 850px;
-            width: 90%;
-            margin: 20px auto;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .hero-card {
-            border-left: 6px solid #3b82f6;
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
-        }
-        body.dark-mode .hero-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left-color: #60a5fa;}
-
-        h1, h2, h3 { margin-top: 0; }
-        .section-title { border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px;}
-        body.dark-mode .section-title { border-bottom-color: #334155; }
-
-        /* --- 인터랙티브 요소 --- */
-        .interactive-box {
-            background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-        body.dark-mode .interactive-box { background: #0f172a; border-color: #475569; }
-
-        button {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 5px 5px 5px 0;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        button:hover { background-color: #2563eb; transform: translateY(-1px); }
-        button.danger { background-color: #ef4444; }
-        button.danger:hover { background-color: #dc2626; }
-        button.toggle-btn.off { background-color: #94a3b8; opacity: 0.7; }
-
-        /* --- CSS 스타일 타겟 카드 --- */
-        .css-demo-card {
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #ffffff;
-            color: #333333;
-            border: 1px solid #cbd5e1;
-            transition: all 0.3s ease;
-            text-align: center;
-            margin-top: 15px;
-        }
-        body.dark-mode .css-demo-card { background-color: #1e293b; color: #f8fafc; }
-
-        /* --- Flexbox 놀이터 스타일 --- */
-        .flex-playground {
-            display: flex;
-            background: #e2e8f0;
-            border-radius: 8px;
-            height: 150px;
-            padding: 10px;
-            transition: all 0.3s ease;
-        }
-        body.dark-mode .flex-playground { background: #334155; }
         
-        .flex-item {
-            background: #8b5cf6;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        nav {
+            display: flex; justify-content: center; align-items: center;
+            padding: 15px 20px; gap: 30px; position: relative;
+            max-width: 1000px; margin: 0 auto;
         }
 
-        .select-controls select, .select-controls input {
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            margin-right: 15px;
-            margin-bottom: 10px;
+        nav a {
+            color: #ffffff; text-decoration: none; font-weight: bold;
+            font-size: 1.1rem; transition: opacity 0.3s;
+        }
+        nav a:hover { opacity: 0.8; }
+
+        .controls {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; gap: 10px; align-items: center;
         }
 
-        /* --- 애니메이션 놀이터 스타일 --- */
-        .anim-target {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #f43f5e, #fb923c);
-            border-radius: 16px;
-            margin: 20px auto;
-            box-shadow: 0 10px 15px rgba(244, 63, 94, 0.3);
+        .theme-toggle {
+            background: none; border: none; font-size: 1.2rem;
+            cursor: pointer; color: white; padding: 5px;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-40px); }
+        select {
+            padding: 5px 10px; border-radius: 5px; border: 1px solid #fff;
+            background-color: transparent; color: white; font-weight: bold;
+            cursor: pointer; outline: none;
         }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+        select option { background-color: #333; color: white; }
+
+        section {
+            max-width: 1000px; margin: 60px auto; padding: 0 20px; scroll-margin-top: 80px;
         }
 
-        .anim-bounce { animation: bounce 0.5s ease 3; }
-        .anim-spin { animation: spin 1s linear infinite; }
-        .anim-pulse { animation: pulse 0.6s ease infinite; }
-
-        /* --- 렌더링 파이프라인 --- */
-        .pipeline-steps { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-        .step-item { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; }
-        body.dark-mode .step-item { background: #172554; border-color: #60a5fa; }
-        .step-title { font-weight: 700; color: #1d4ed8; margin-bottom: 5px;}
-        body.dark-mode .step-title { color: #93c5fd; }
-
-        /* --- 박스 모델 --- */
-        .box-outer-margin { background-color: #fde68a; padding: 15px; border-radius: 8px; transition: padding 0.2s; width: 80%; text-align: center; color: #b45309; font-weight: bold;}
-        .box-border { background-color: #93c5fd; border: 4px solid #3b82f6; border-radius: 6px; transition: border-width 0.2s; color: #1e3a8a;}
-        .box-padding { background-color: #bbf7d0; padding: 20px; transition: padding 0.2s; color: #166534;}
-        .box-content { background-color: #ffffff; color: #333; padding: 15px; border: 1px dashed #666; border-radius: 4px;}
-
-        /* --- 라이브 샌드박스 --- */
-        pre { background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 13px; }
-        .sandbox-preview { margin-top: 15px; padding: 20px; border-radius: 12px; background: #fff; min-height: 100px; border: 1px solid #e2e8f0; }
-        body.dark-mode .sandbox-preview { background: #0f172a; border-color: #334155;}
-        
-        .sandbox-styled-card {
-            background: linear-gradient(135deg, #6366f1, #a855f7) !important;
-            color: white !important;
-            border-radius: 16px !important;
-            padding: 2rem !important;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3) !important;
+        h2 {
+            color: var(--primary-color); border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px; display: inline-block; margin-bottom: 30px;
+            transition: color 0.3s, border-color 0.3s;
         }
-        .sandbox-styled-card button { background: #fff !important; color: #4f46e5 !important; padding: 10px 18px !important; border-radius: 8px !important; }
+
+        .typewriter-text {
+            color: var(--primary-color); margin-top: 0;
+            border-right: 3px solid var(--primary-color); padding-right: 5px;
+            animation: blink 0.75s step-end infinite; display: inline-block; min-height: 40px;
+        }
+        @keyframes blink { from, to { border-color: transparent; } 50% { border-color: var(--primary-color); } }
+
+        .fade-in {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        .portfolio-grid { display: flex; flex-direction: column; gap: 25px; }
+
+        .portfolio-item, .achiev-item {
+            background-color: var(--card-bg); border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow); transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            border-left: 5px solid var(--primary-color); display: flex; overflow: hidden;
+            
+            /* Новые стили для того, чтобы ссылки выглядели как обычные блоки */
+            text-decoration: none; 
+            color: inherit; 
+            cursor: pointer;
+        }
+        .portfolio-item { min-height: 200px; display: flex; } /* Убедимся, что flex работает для a-тега */
+        .achiev-item { padding: 25px; align-items: center; gap: 20px; }
+
+        .portfolio-item:hover, .achiev-item:hover {
+            transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .project-info { flex: 1; padding: 25px; display: flex; flex-direction: column; justify-content: center; }
+        .project-info h3, .achiev-info h3 { margin-top: 0; color: var(--text-color); display: flex; align-items: center; gap: 10px; }
+        .project-info h3 i, .achiev-info h3 i, .achiev-icon i { color: var(--primary-color); }
+
+        .project-image {
+            width: 40%; background-color: var(--img-placeholder); display: flex;
+            align-items: center; justify-content: center; color: var(--note-color);
+            font-weight: bold; font-size: 1.2rem; border-left: 1px solid var(--tag-bg);
+        }
+
+        .achiev-icon { font-size: 2.5rem; min-width: 60px; text-align: center; }
+        .achiev-info p { margin-bottom: 0; }
+
+        .about-container {
+            display: flex; flex-wrap: wrap; gap: 40px; background-color: var(--card-bg);
+            padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px var(--shadow);
+            transition: background-color 0.3s;
+        }
+        .about-text { flex: 1.5; min-width: 300px; }
+        .skills { flex: 1; min-width: 300px; }
+        .skills h3 { margin-top: 0; color: var(--text-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
+        .skill-tag, .lang-tag {
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
+            display: flex; align-items: center; gap: 6px; transition: 0.3s;
+        }
+        .skill-tag { background-color: var(--tag-bg); color: var(--tag-text); }
+        .lang-tag { background-color: var(--primary-color); color: #ffffff; }
+
+        .lang-note { font-size: 0.85rem; color: var(--note-color); margin-top: -15px; margin-bottom: 25px; font-style: italic; }
+
+        .ku-section {
+            background-color: var(--card-bg); border-left: 6px solid var(--primary-color);
+            padding: 30px; border-radius: 0 12px 12px 0; box-shadow: 0 4px 15px var(--shadow);
+        }
+        .ku-section h3 { color: var(--primary-color); margin-top: 0; font-size: 1.5rem; }
+        .ku-logo-text { font-family: serif; font-weight: bold; color: var(--primary-color); font-size: 1.2rem; margin-bottom: 15px; }
+
+        footer { background-color: #1a1a1a; color: #ffffff; text-align: center; padding: 30px; margin-top: 60px; position: relative; }
+
+        @media (max-width: 768px) {
+            nav { flex-direction: column; padding-top: 50px; }
+            .controls { top: 15px; transform: none; }
+            .portfolio-item { flex-direction: column; }
+            .project-image { width: 100%; height: 200px; border-left: none; border-top: 1px solid var(--tag-bg); }
+            .achiev-item { flex-direction: column; text-align: center; }
+            .achiev-info h3 { justify-content: center; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 헤더 / 네비게이션 -->
+    <canvas id="canvas-bg"></canvas>
+
     <header>
-        <div class="lang-picker">
-            <select id="lang-select">
-                <option value="ko" selected>🌐 한국어</option>
-                <option value="ru">🌐 Русский</option>
-                <option value="en">🌐 English</option>
-            </select>
-        </div>
-
-        <div class="nav-center">
-            <a href="#html-sec">HTML</a>
-            <a href="#css-sec">CSS</a>
-            <a href="#js-sec">JavaScript</a>
-            <a href="#adv-sec" data-key="nav_adv">심화 / Advanced</a>
-        </div>
-
-        <div>
-            <button id="theme-btn" style="margin:0; padding:8px 14px; font-size:12px; border-radius: 20px;">🌓 Theme</button>
-        </div>
+        <nav>
+            <a href="#portfolio" data-i18n="nav-portfolio">Projects</a>
+            <a href="#about" data-i18n="nav-about">About Me</a>
+            <a href="#achievements" data-i18n="nav-achiev">Achievements</a>
+            <a href="#education" data-i18n="nav-edu">My Goal</a>
+            
+            <div class="controls">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="ko">한국어</option>
+                </select>
+            </div>
+        </nav>
     </header>
 
-    <div class="container">
-
-        <!-- 인트로 섹션 -->
-        <section class="card hero-card">
-            <h1 data-key="welcome_title">👋 웹 개발 인터랙티브 샌드박스</h1>
-            <p data-key="welcome_desc">
-                HTML, CSS, JavaScript의 작동 원리를 직접 체험해보세요! 렌더링 파이프라인, 박스 모델 조작, Flexbox, 애니메이션 및 비동기 통신 등 핵심 기능들을 실시간으로 테스트할 수 있습니다.
-            </p>
-        </section>
-
-        <!-- HTML 섹션 (개선됨) -->
-        <section id="html-sec" class="card">
-            <h2 class="section-title" style="color: #ea580c;" data-key="html_heading">1. HTML — 구조와 뼈대</h2>
-            <p data-key="html_theory"><strong>HTML</strong>은 웹 페이지의 요소(제목, 텍스트, 버튼, 이미지 등)가 어디에 위치할지 뼈대를 만듭니다.</p>
+    <section id="portfolio">
+        <h2 class="fade-in"><i class="fa-solid fa-code-branch"></i> <span data-i18n="port-title">My Projects</span></h2>
+        
+        <div class="portfolio-grid">
+            <!-- ПРОЕКТ 1: Plants vs Zombies (Gemini) -->
+            <a href="project/Pvz/pvzFINAL.html" target="_blank" class="portfolio-item fade-in">
+                <div class="project-info">
+                    <h3><i class="fa-solid fa-gamepad"></i> <span data-i18n="proj1-title">Plants vs Zombies (Gemini)</span></h3>
+                    <p data-i18n="proj1-desc">Created using Vibe Coding with Gemini AI.</p>
+                </div>
+                <div class="project-image">
+                    <i class="fa-regular fa-image" style="margin-right: 10px;"></i> <span data-i18n="img-place">Image</span>
+                </div>
+            </a>
             
-            <div class="interactive-box">
-                <p data-key="html_desc_extra">아래 버튼을 눌러 실시간으로 HTML 요소를 DOM 트리 생성/추가해보세요:</p>
-                <div>
-                    <button id="add-btn-element" data-key="html_add_btn">+ 버튼 추가</button>
-                    <button id="add-input-element" data-key="html_add_input">+ 입력창 추가</button>
-                    <button id="add-img-element" data-key="html_add_img">+ 이미지 추가</button>
-                    <button id="clear-html-elements" class="danger" data-key="html_clear">전체 초기화</button>
+            <!-- ПРОЕКТ 2: Plants vs Zombies (ANTIGRAVITY AI) -->
+            <a href="project/pvzAG.html" target="_blank" class="portfolio-item fade-in">
+                <div class="project-info">
+                    <h3><i class="fa-solid fa-cubes"></i> <span data-i18n="proj2-title">Plants vs Zombies (ANTIGRAVITY AI)</span></h3>
+                    <p data-i18n="proj2-desc">Created in ANTIGRAVITY AI.</p>
                 </div>
-                
-                <div id="html-dynamic-container" style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.6); border-radius: 8px; min-height: 50px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                    <h3 contenteditable="true" style="margin:0; width:100%;" data-key="editable_heading">여기를 클릭하고 원하는 제목을 입력하세요!</h3>
+                <div class="project-image">
+                    <i class="fa-regular fa-image" style="margin-right: 10px;"></i> <span data-i18n="img-place">Image</span>
                 </div>
-            </div>
-        </section>
+            </a>
 
-        <!-- CSS 섹션 (개선됨) -->
-        <section id="css-sec" class="card">
-            <h2 class="section-title" style="color: #2563eb;" data-key="css_heading">2. CSS — 스타일과 디자인</h2>
-            <p data-key="css_theory"><strong>CSS</strong>는 시각적 스타일, 색상, 폰트 및 레이아웃을 제어하여 웹사이트를 아름답게 꾸며줍니다.</p>
-            
-            <div class="interactive-box">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px;">
-                    <div>
-                        <label data-key="css_bg_lbl">배경색:</label><br>
-                        <input type="color" id="css-bg-picker" value="#ffffff">
-                    </div>
-                    <div>
-                        <label data-key="css_text_lbl">글자색:</label><br>
-                        <input type="color" id="css-text-picker" value="#334155">
-                    </div>
-                    <div>
-                        <label data-key="css_radius_lbl">테두리 곡률 (Radius):</label><br>
-                        <input type="range" id="css-radius-slider" min="0" max="30" value="8">
-                    </div>
-                    <div>
-                        <label data-key="css_shadow_lbl">그림자 효과:</label><br>
-                        <input type="checkbox" id="css-shadow-toggle"> <span data-key="css_shadow_enable">활성화</span>
-                    </div>
+            <!-- ПРОЕКТ 3: Web Dev Interactive Sandbox -->
+            <a href="project/wiki.html" target="_blank" class="portfolio-item fade-in">
+                <div class="project-info">
+                    <h3><i class="fa-solid fa-laptop-code"></i> <span data-i18n="proj3-title">Web Dev Interactive Sandbox</span></h3>
+                    <p data-i18n="proj3-desc">Experience how HTML, CSS, and JavaScript work firsthand! Test core features like rendering pipelines, box model manipulation, Flexbox, animations, and asynchronous communication in real-time.</p>
                 </div>
-
-                <div id="css-target-card" class="css-demo-card">
-                    <h3 style="margin-top:0;" data-key="css_demo_title">실시간 디자인 변경 대상</h3>
-                    <p data-key="css_demo_desc">위의 컨트롤러를 조작하여 이 박스의 CSS 스타일 속성을 즉시 변경해보세요.</p>
+                <div class="project-image">
+                    <i class="fa-regular fa-image" style="margin-right: 10px;"></i> <span data-i18n="img-place">Image</span>
                 </div>
-            </div>
-        </section>
-
-        <!-- JS 섹션 (개선됨) -->
-        <section id="js-sec" class="card">
-            <h2 class="section-title" style="color: #ca8a04;" data-key="js_heading">3. JavaScript — 로직과 생동감</h2>
-            <p data-key="js_theory"><strong>JavaScript</strong>는 클릭, 타이머, 계산 등을 처리하여 정적인 사이트를 동적으로 살아 움직이게 합니다.</p>
-            
-            <div class="interactive-box">
-                <p><strong data-key="clock_title">실시간 시계:</strong> <span id="live-clock" style="font-weight:900; font-size: 18px; color:#2563eb; font-family: monospace;">00:00:00</span></p>
-                <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
-                
-                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <button id="js-counter-btn" data-key="js_click_counter">클릭 횟수: 0</button>
-                    <button id="js-random-color-btn" data-key="js_random_bg">🎨 랜덤 배경색 변경</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 심화 섹션 래퍼 -->
-        <div id="adv-sec">
-
-            <!-- 심화 1: 렌더링 파이프라인 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #4f46e5;" data-key="adv1_title">🚀 심화 1: 브라우저 렌더링 파이프라인</h2>
-                <p data-key="adv1_desc">작성한 코드가 브라우저 화면의 픽셀로 변환되는 5단계 핵심 경로입니다:</p>
-                
-                <div class="pipeline-steps">
-                    <div class="step-item">
-                        <div class="step-title" data-key="step1_t">Step 01: DOM 트리 생성</div>
-                        <div data-key="step1_d">브라우저가 HTML 코드를 파싱하여 요소(Node)들의 나무 구조(DOM)를 만듭니다.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-title" data-key="step2_t">Step 02: CSSOM 트리 생성</div>
-                        <div data-key="step2_d">CSS 파일의 스타일 규칙을 분석하여 각 노드에 스타일을 할당한 CSSOM을 형성합니다.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-title" data-key="step3_t">Step 03: Render Tree 결합</div>
-                        <div data-key="step3_d">화면에 실제 표시될 DOM과 CSSOM을 합쳐 렌더 트리를 구성합니다.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-title" data-key="step4_t">Step 04: Layout (Reflow)</div>
-                        <div data-key="step4_d">각 요소가 화면 상에서 몇 Pixel 크기로, 어디에 위치할지 정확한 좌푯값을 계산합니다.</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-title" data-key="step5_t">Step 05: Paint (Repaint)</div>
-                        <div data-key="step5_d">계산된 좌표 위에 색상, 그림자, 텍스트를 실제로 그려 넣고 화면에 출력합니다.</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 심화 2: CSS 박스 모델 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #059669;" data-key="adv2_title">📦 심화 2: CSS 박스 모델 실시간 조작</h2>
-                <p data-key="adv2_desc">웹의 모든 요소를 감싸는 4가지 레이어를 슬라이더로 직접 조작해보세요:</p>
-                
-                <div class="interactive-box">
-                    <div style="display:flex; flex-direction:column; gap:10px; max-width:400px; margin:0 auto 20px auto;">
-                        <label>Padding (내부 여백): <span id="pad-val" style="font-weight:bold;">20px</span></label>
-                        <input type="range" id="pad-slider" min="0" max="50" value="20">
-
-                        <label>Border (테두리 두께): <span id="bor-val" style="font-weight:bold;">4px</span></label>
-                        <input type="range" id="bor-slider" min="0" max="20" value="4">
-
-                        <label>Margin (외부 여백): <span id="mar-val" style="font-weight:bold;">15px</span></label>
-                        <input type="range" id="mar-slider" min="0" max="40" value="15">
-                    </div>
-
-                    <div class="box-model-container">
-                        <div class="box-outer-margin" id="box-margin-el">
-                            MARGIN
-                            <div class="box-border" id="box-border-el">
-                                BORDER
-                                <div class="box-padding" id="box-padding-el">
-                                    PADDING
-                                    <div class="box-content" data-key="box_content">Content (내용물)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 심화 4: Flexbox 놀이터 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #9333ea;" data-key="adv4_title">🔲 심화 4: CSS Flexbox 놀이터</h2>
-                <p data-key="adv4_desc">요소들을 정렬하는 가장 강력한 방법인 Flexbox를 조작해 아이템들의 배치를 바꿔보세요.</p>
-                
-                <div class="interactive-box">
-                    <div class="select-controls">
-                        <label data-key="flex_justify">가로 정렬 (justify-content): </label>
-                        <select id="flex-justify">
-                            <option value="flex-start">flex-start (왼쪽)</option>
-                            <option value="center">center (가운데)</option>
-                            <option value="flex-end">flex-end (오른쪽)</option>
-                            <option value="space-between">space-between (양끝 배치)</option>
-                            <option value="space-around">space-around (균등 배치)</option>
-                        </select>
-                        
-                        <label data-key="flex_align">세로 정렬 (align-items): </label>
-                        <select id="flex-align">
-                            <option value="stretch">stretch (늘리기)</option>
-                            <option value="flex-start">flex-start (위)</option>
-                            <option value="center">center (가운데)</option>
-                            <option value="flex-end">flex-end (아래)</option>
-                        </select>
-                    </div>
-
-                    <div class="flex-playground" id="flex-container">
-                        <div class="flex-item">Box 1</div>
-                        <div class="flex-item" style="font-size: 24px;">Box 2</div>
-                        <div class="flex-item">Box 3</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 심화 5: 애니메이션 놀이터 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #e11d48;" data-key="adv5_title">✨ 심화 5: CSS 애니메이션 제어</h2>
-                <p data-key="adv5_desc">JavaScript를 사용하여 CSS 애니메이션 클래스를 추가하거나 제거하여 요소를 움직여보세요.</p>
-                
-                <div class="interactive-box" style="text-align: center;">
-                    <div>
-                        <button id="btn-bounce" data-key="anim_bounce">🏀 점프 (Bounce)</button>
-                        <button id="btn-spin" data-key="anim_spin">🌀 회전 (Spin)</button>
-                        <button id="btn-pulse" data-key="anim_pulse">💗 펄스 (Pulse)</button>
-                        <button id="btn-stop" class="danger" data-key="anim_stop">🛑 정지 (Stop)</button>
-                    </div>
-                    <div class="anim-target" id="anim-box"></div>
-                </div>
-            </section>
-
-            <!-- 심화 3: 비동기 통신 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #0891b2;" data-key="adv3_title">🌐 심화 3: JavaScript 비동기 통신 (Fetch)</h2>
-                <p data-key="adv3_desc">새로고침 없이 가상의 서버에서 실시간 데이터(JSON)를 받아와 화면을 동적으로 업데이트합니다.</p>
-                
-                <div class="interactive-box">
-                    <button id="fetch-btn" data-key="fetch_btn">📡 서버에서 프로필 불러오기</button>
-                    <div id="fetch-result" style="margin-top:15px; font-weight:bold; color:#334155;"></div>
-                </div>
-            </section>
-
-            <!-- 샌드박스 토글 -->
-            <section class="card">
-                <h2 class="section-title" style="color: #10b981;" data-key="sandbox_title">🎮 종합 인터랙티브 샌드박스</h2>
-                <p data-key="sandbox_desc">각 언어를 하나씩 껐다 켜보며 3가지 기술이 어떻게 결합되는지 직접 확인하세요.</p>
-
-                <div class="toggle-group" style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-                    <button id="toggle-html" class="toggle-btn">🦴 HTML: ON</button>
-                    <button id="toggle-css" class="toggle-btn">🎨 CSS: ON</button>
-                    <button id="toggle-js" class="toggle-btn">⚡ JavaScript: ON</button>
-                </div>
-
-                <p><strong data-key="code_monitor_title">📄 실시간 라이브 코드 모니터:</strong></p>
-                <pre><code id="code-monitor">
-<!-- HTML -->
-<div class="card">
-  <h3>사용자 프로필</h3>
-  <p>좋아요: <span id="likes">0</span></p>
-  <button id="btn">좋아요 누르기</button>
-</div>
-                </code></pre>
-
-                <p><strong data-key="preview_title">👁️ 실시간 출력 결과:</strong></p>
-                <div id="sandbox-preview-container" class="sandbox-preview">
-                    <div id="sb-card" class="sandbox-styled-card">
-                        <h3 id="sb-title" style="margin-top:0;">사용자 프로필</h3>
-                        <p data-key="sb_likes_text">좋아요 횟수: <span id="sb-likes">0</span></p>
-                        <button id="sb-btn" data-key="sb_btn">좋아요 누르기</button>
-                    </div>
-                </div>
-            </section>
-
+            </a>
         </div>
-    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="fade-in"><i class="fa-solid fa-user-astronaut"></i> <span data-i18n="about-section-title">About Me</span></h2>
+        
+        <div class="about-container fade-in">
+            <div class="about-text">
+                <h1 class="typewriter-text" id="hero-title-element"></h1>
+                <p data-i18n="hero-desc">I was born in 2009 in Uzbekistan. I have a strong passion for computer science and solving complex problems. I believe that programming is the best tool to build the future.</p>
+            </div>
+            
+            <div class="skills">
+                <h3 data-i18n="skills-title"><i class="fa-solid fa-microchip"></i> Tech Stack</h3>
+                <div class="skill-tags">
+                    <div class="skill-tag"><i class="fa-brands fa-python"></i> Python</div>
+                    <div class="skill-tag"><i class="fa-brands fa-html5"></i> HTML</div>
+                    <div class="skill-tag"><i class="fa-brands fa-css3-alt"></i> CSS</div>
+                    <div class="skill-tag"><i class="fa-solid fa-c"></i> C</div>
+                </div>
+                <div class="lang-note" data-i18n="lang-note">* Learning these at school (actively practicing)</div>
+
+                <h3 data-i18n="langs-title"><i class="fa-solid fa-language"></i> Spoken Languages</h3>
+                <div class="skill-tags">
+                    <div class="lang-tag" data-i18n="lang-ko">Korean</div>
+                    <div class="lang-tag" data-i18n="lang-ru">Russian</div>
+                    <div class="lang-tag" data-i18n="lang-en">English</div>
+                    <div class="lang-tag" data-i18n="lang-jp">Japanese</div>
+                </div>
+
+                <h3 data-i18n="hobbies-title" style="margin-top: 15px;"><i class="fa-solid fa-heart"></i> Hobbies</h3>
+                <div class="skill-tags" style="margin-bottom: 0;">
+                    <div class="skill-tag"><i class="fa-solid fa-basketball"></i> <span data-i18n="hobby-basket">Basketball</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="achievements">
+        <h2 class="fade-in"><i class="fa-solid fa-medal"></i> <span data-i18n="achiev-section-title">Achievements</span></h2>
+        <div class="portfolio-grid">
+            <div class="achiev-item fade-in">
+                <div class="achiev-icon"><i class="fa-solid fa-trophy"></i></div>
+                <div class="achiev-info">
+                    <h3 data-i18n="achiev-1-title">Academic Olympiads</h3>
+                    <p data-i18n="achiev-1-desc">Participation in school-level mathematics and informatics competitions, developing analytical thinking and logic.</p>
+                </div>
+            </div>
+            <div class="achiev-item fade-in">
+                <div class="achiev-icon"><i class="fa-solid fa-certificate"></i></div>
+                <div class="achiev-info">
+                    <h3 data-i18n="achiev-2-title">Language Proficiency</h3>
+                    <p data-i18n="achiev-2-desc">Actively preparing for TOPIK and IELTS exams to prove readiness for international academic environments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="education">
+        <h2 class="fade-in"><i class="fa-solid fa-graduation-cap"></i> <span data-i18n="edu-title">My Goal</span></h2>
+        <div class="ku-section fade-in">
+            <div class="ku-logo-text">KOREA UNIVERSITY (고려대학교)</div>
+            <h3 data-i18n="ku-title">Target: Department of Computer Science & Engineering</h3>
+            <p><strong data-i18n="ku-why-label">Why KU?</strong><br> 
+            <span data-i18n="ku-why-val">Korea University is renowned for its outstanding engineering programs. I am eager to study Computer Science here to deepen my knowledge in software engineering among the brightest minds.</span></p>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footer-rights">© 2026 LE VITALIY (예비탈리). All rights reserved.</p>
+        <p><i class="fa-brands fa-instagram"></i> <span data-i18n="footer-contact">Contact: ig: talliyyy</span></p>
+    </footer>
 
     <script>
-        // --- 언어 팩 (Translations) ---
         const translations = {
-            ko: {
-                nav_adv: "심화 / Advanced",
-                welcome_title: "👋 웹 개발 인터랙티브 샌드박스",
-                welcome_desc: "HTML, CSS, JavaScript의 작동 원리를 직접 체험해보세요! 렌더링 파이프라인, 박스 모델 조작, Flexbox, 애니메이션 및 비동기 통신 등 핵심 기능들을 실시간으로 테스트할 수 있습니다.",
+            "en": {
+                "nav-portfolio": "Projects",
+                "nav-about": "About Me",
+                "nav-achiev": "Achievements",
+                "nav-edu": "My Goal",
+                "port-title": "My Projects",
                 
-                html_heading: "1. HTML — 구조와 뼈대",
-                html_theory: "<strong>HTML</strong>은 웹 페이지의 요소(제목, 텍스트, 버튼, 이미지 등)가 어디에 위치할지 뼈대를 만듭니다.",
-                html_desc_extra: "아래 버튼을 눌러 실시간으로 HTML 요소를 DOM 트리 생성/추가해보세요:",
-                html_add_btn: "+ 버튼 추가",
-                html_add_input: "+ 입력창 추가",
-                html_add_img: "+ 이미지 추가",
-                html_clear: "전체 초기화",
-                editable_heading: "여기를 클릭하고 원하는 제목을 입력하세요!",
+                "proj1-title": "Plants vs Zombies (Vibe Coding / Gemini)",
+                "proj1-desc": "Created using Vibe Coding with Gemini AI.",
+                "proj2-title": "Plants vs Zombies (ANTIGRAVITY AI)",
+                "proj2-desc": "Created in ANTIGRAVITY AI.",
+                "proj3-title": "Web Dev Interactive Sandbox",
+                "proj3-desc": "Experience how HTML, CSS, and JavaScript work firsthand! Test core features like rendering pipelines, box model manipulation, Flexbox, animations, and asynchronous communication in real-time.",
                 
-                css_heading: "2. CSS — 스타일과 디자인",
-                css_theory: "<strong>CSS</strong>는 시각적 스타일, 색상, 폰트 및 레이아웃을 제어하여 웹사이트를 아름답게 꾸며줍니다.",
-                css_bg_lbl: "배경색:",
-                css_text_lbl: "글자색:",
-                css_radius_lbl: "테두리 곡률 (Radius):",
-                css_shadow_lbl: "그림자 효과:",
-                css_shadow_enable: "활성화",
-                css_demo_title: "실시간 디자인 변경 대상",
-                css_demo_desc: "위의 컨트롤러를 조작하여 이 박스의 CSS 스타일 속성을 즉시 변경해보세요.",
-
-                js_heading: "3. JavaScript — 로직과 생동감",
-                js_theory: "<strong>JavaScript</strong>는 클릭, 타이머, 계산 등을 처리하여 정적인 사이트를 동적으로 살아 움직이게 합니다.",
-                clock_title: "실시간 시계: ",
-                js_click_counter: "클릭 횟수: ",
-                js_random_bg: "🎨 랜덤 배경색 변경",
-                
-                adv1_title: "🚀 심화 1: 브라우저 렌더링 파이프라인",
-                adv1_desc: "작성한 코드가 브라우저 화면의 픽셀로 변환되는 5단계 핵심 경로입니다:",
-                step1_t: "Step 01: DOM 트리 생성",
-                step1_d: "브라우저가 HTML 코드를 파싱하여 요소(Node)들의 나무 구조(DOM)를 만듭니다.",
-                step2_t: "Step 02: CSSOM 트리 생성",
-                step2_d: "CSS 파일의 스타일 규칙을 분석하여 각 노드에 스타일을 할당한 CSSOM을 형성합니다.",
-                step3_t: "Step 03: Render Tree 결합",
-                step3_d: "화면에 실제 표시될 DOM과 CSSOM을 합쳐 렌더 트리를 구성합니다.",
-                step4_t: "Step 04: Layout (Reflow)",
-                step4_d: "각 요소가 화면 상에서 몇 Pixel 크기로, 어디에 위치할지 정확한 좌푯값을 계산합니다.",
-                step5_t: "Step 05: Paint (Repaint)",
-                step5_d: "계산된 좌표 위에 색상, 그림자, 텍스트를 실제로 그려 넣고 화면에 출력합니다.",
-                
-                adv2_title: "📦 심화 2: CSS 박스 모델 실시간 조작",
-                adv2_desc: "웹의 모든 요소를 감싸는 4가지 레이어를 슬라이더로 직접 조작해보세요:",
-                box_content: "Content (내용물)",
-                
-                adv4_title: "🔲 심화 4: CSS Flexbox 놀이터",
-                adv4_desc: "요소들을 정렬하는 가장 강력한 방법인 Flexbox를 조작해 아이템들의 배치를 바꿔보세요.",
-                flex_justify: "가로 정렬 (justify-content): ",
-                flex_align: "세로 정렬 (align-items): ",
-                
-                adv5_title: "✨ 심화 5: CSS 애니메이션 제어",
-                adv5_desc: "JavaScript를 사용하여 CSS 애니메이션 클래스를 추가하거나 제거하여 요소를 움직여보세요.",
-                anim_bounce: "🏀 점프 (Bounce)",
-                anim_spin: "🌀 회전 (Spin)",
-                anim_pulse: "💗 펄스 (Pulse)",
-                anim_stop: "🛑 정지 (Stop)",
-
-                adv3_title: "🌐 심화 3: JavaScript 비동기 통신 (Fetch)",
-                adv3_desc: "새로고침 없이 가상의 서버에서 실시간 데이터(JSON)를 받아와 화면을 동적으로 업데이트합니다.",
-                fetch_btn: "📡 서버에서 프로필 불러오기",
-                fetch_loading: "⏳ 가상 서버에서 데이터를 불러오는 중...",
-                fetch_success: "✅ 데이터 로드 성공:",
-                
-                sandbox_title: "🎮 종합 인터랙티브 샌드박스",
-                sandbox_desc: "각 언어를 하나씩 껐다 켜보며 3가지 기술이 어떻게 결합되는지 직접 확인하세요.",
-                code_monitor_title: "📄 실시간 라이브 코드 모니터:",
-                preview_title: "👁️ 실시간 출력 결과:",
-                sb_likes_text: "좋아요 횟수: ",
-                sb_btn: "좋아요 누르기",
-                sb_off_html: "<em>[HTML OFF: DOM에 요소가 존재하지 않습니다]</em>",
-                sb_alert: "JavaScript가 꺼져 있습니다! 버튼을 눌러도 반응하지 않습니다."
+                "img-place": "Image Placeholder",
+                "about-section-title": "About Me",
+                "hero-title": "Hello! I am LE VITALIY",
+                "hero-desc": "I was born in 2009 in Uzbekistan. I have a strong passion for computer science and solving complex problems. I believe that programming is the best tool to build the future.",
+                "skills-title": "Tech Stack",
+                "langs-title": "Spoken Languages",
+                "hobbies-title": "Hobbies",
+                "hobby-basket": "Basketball",
+                "lang-ko": "Korean",
+                "lang-ru": "Russian",
+                "lang-en": "English",
+                "lang-jp": "Japanese",
+                "lang-note": "* Learning these at school (actively practicing)",
+                "achiev-section-title": "Achievements & Awards",
+                "achiev-1-title": "Academic Competitions",
+                "achiev-1-desc": "Participation in school-level mathematics and informatics competitions, developing analytical thinking and logic.",
+                "achiev-2-title": "Language Proficiency",
+                "achiev-2-desc": "Actively preparing for TOPIK and IELTS exams to prove readiness for international academic environments.",
+                "edu-title": "Academic Goal",
+                "ku-title": "Target: Department of Computer Science & Engineering",
+                "ku-why-label": "Why KU?",
+                "ku-why-val": "Korea University is renowned for its outstanding engineering programs. I am eager to study Computer Science here to deepen my knowledge in software engineering among the brightest minds.",
+                "footer-rights": "© 2026 LE VITALIY. All rights reserved.",
+                "footer-contact": "Contact: ig: talliyyy"
             },
-            ru: {
-                nav_adv: "Продвинутый / Advanced",
-                welcome_title: "👋 Интерактивная веб-лаборатория",
-                welcome_desc: "Изучайте работу HTML, CSS и JavaScript на практике! Здесь представлены визуализаторы рендеринга, редактор Box Model, Flexbox, анимации и песочница.",
+            "ru": {
+                "nav-portfolio": "Мои проекты",
+                "nav-about": "Обо мне",
+                "nav-achiev": "Достижения",
+                "nav-edu": "Моя цель",
+                "port-title": "Мои проекты",
                 
-                html_heading: "1. HTML — Карка스 и Структура",
-                html_theory: "<strong>HTML</strong> создает каркас страницы (заголовки, текст, кнопки, картинки).",
-                html_desc_extra: "Нажимайте кнопки ниже, чтобы динамически добавлять HTML-элементы в DOM:",
-                html_add_btn: "+ Кнопка",
-                html_add_input: "+ Поле ввода",
-                html_add_img: "+ Картинка",
-                html_clear: "Очистить всё",
-                editable_heading: "Кликни на меня и напиши свой заголовок!",
+                "proj1-title": "Plants vs Zombies (Gemini)",
+                "proj1-desc": "Сделан с помощью Vibe Coding (Gemini).",
+                "proj2-title": "Plants vs Zombies (ANTIGRAVITY AI)",
+                "proj2-desc": "Сделан в ANTIGRAVITY AI.",
+                "proj3-title": "Интерактивная песочница веб-разработки",
+                "proj3-desc": "Познакомьтесь с принципами работы HTML, CSS и JavaScript на практике! Тестируйте конвейер рендеринга, манипуляции с блочной моделью, Flexbox, анимации и асинхронную связь в реальном времени.",
                 
-                css_heading: "2. CSS — Стиль и Оформление",
-                css_theory: "<strong>CSS</strong> отвечает за визуальное оформление, цвета, шрифты и расположение элементов.",
-                css_bg_lbl: "Цвет фона:",
-                css_text_lbl: "Цвет текста:",
-                css_radius_lbl: "Скругление (Radius):",
-                css_shadow_lbl: "Эффект тени:",
-                css_shadow_enable: "Включить",
-                css_demo_title: "Демонстрационная карточка",
-                css_demo_desc: "Используйте элементы управления выше, чтобы мгновенно изменить стили CSS этого блока.",
-
-                js_heading: "3. JavaScript — Логика и Динамика",
-                js_theory: "<strong>JavaScript</strong> оживляет сайт, обрабатывая клики, таймеры и вычисления.",
-                clock_title: "Часы реального времени: ",
-                js_click_counter: "Количество кликов: ",
-                js_random_bg: "🎨 Случайный цвет фона",
-                
-                adv1_title: "🚀 Продвинутый 1: Конвейер рендеринга",
-                adv1_desc: "5-шаговый путь превращения кода в графику на экране:",
-                step1_t: "Step 01: Создание DOM дерева",
-                step1_d: "Браузер разбирает HTML и создает древовидную структуру (DOM).",
-                step2_t: "Step 02: Создание CSSOM дерева",
-                step2_d: "Анализируются стили CSS и формируется дерево стилей.",
-                step3_t: "Step 03: Render Tree",
-                step3_d: "DOM и CSSOM объединяются в Дерево Рендера (видимые элементы).",
-                step4_t: "Step 04: Layout (Reflow)",
-                step4_d: "Расчет точных координат и пиксельных размеров каждого элемента.",
-                step5_t: "Step 05: Paint (Repaint)",
-                step5_d: "Отрисовка пикселей, цветов, теней и текста на экране.",
-                
-                adv2_title: "📦 Продвинутый 2: Управление Box Model",
-                adv2_desc: "Управляйте 4 слоями каждого веб-элемента с помощью ползунков:",
-                box_content: "Content (Содержимое)",
-                
-                adv4_title: "🔲 Продвинутый 4: Песочница CSS Flexbox",
-                adv4_desc: "Меняйте свойства Flexbox, чтобы понять, как легко выравнивать элементы.",
-                flex_justify: "По горизонтали (justify-content): ",
-                flex_align: "По вертикали (align-items): ",
-
-                adv5_title: "✨ Продвинутый 5: Управление анимациями",
-                adv5_desc: "Используйте JavaScript для добавления CSS-классов анимации объекту.",
-                anim_bounce: "🏀 Прыжок",
-                anim_spin: "🌀 Вращение",
-                anim_pulse: "💗 Пульсация",
-                anim_stop: "🛑 Стоп",
-
-                adv3_title: "🌐 Продвинутый 3: Асинхронный Fetch",
-                adv3_desc: "Получение данных с сервера (JSON) без перезагрузки страницы.",
-                fetch_btn: "📡 Загрузить профиль",
-                fetch_loading: "⏳ Загрузка данных с виртуального сервера...",
-                fetch_success: "✅ Данные получены:",
-                
-                sandbox_title: "🎮 Комплексная песочница",
-                sandbox_desc: "Включайте и выключайте языки, чтобы увидеть их взаимодействие.",
-                code_monitor_title: "📄 Монитор кода:",
-                preview_title: "👁️ Результат:",
-                sb_likes_text: "Лайки: ",
-                sb_btn: "Поставить лайк",
-                sb_off_html: "<em>[HTML ВЫКЛ: Элемент не существует в DOM]</em>",
-                sb_alert: "JavaScript ВЫКЛЮЧЕН! Клик по кнопке ничего не делает."
+                "img-place": "Место для картинки",
+                "about-section-title": "Кто я",
+                "hero-title": "Привет! Я Ле Виталий",
+                "hero-desc": "Я родился в 2009 году в Узбекистане. Я страстно увлечен программированием и технологиями. Верю, что код — это лучший инструмент для создания будущего.",
+                "skills-title": "Стек технологий",
+                "langs-title": "Знание языков",
+                "hobbies-title": "Хобби",
+                "hobby-basket": "Баскетбол",
+                "lang-ko": "Корейский",
+                "lang-ru": "Русский",
+                "lang-en": "Английский",
+                "lang-jp": "Японский",
+                "lang-note": "* Изучаю эти языки в школе (пока не эксперт, но практикуюсь)",
+                "achiev-section-title": "Достижения и сертификаты",
+                "achiev-1-title": "Школьные олимпиады",
+                "achiev-1-desc": "Участие в школьных олимпиадах по математике и информатике, развитие логики и аналитического мышления.",
+                "achiev-2-title": "Языковые сертификаты",
+                "achiev-2-desc": "Активная подготовка к международным экзаменам TOPIK и IELTS для обучения в интернациональной среде.",
+                "edu-title": "Моя цель",
+                "ku-title": "Поступление на факультет компьютерной инженерии (컴퓨터공학)",
+                "ku-why-label": "Почему именно 고려대?",
+                "ku-why-val": "Университет Корё славится своими выдающимися инженерными программами. Я хочу изучать здесь Computer Science, чтобы углубить знания в разработке ПО.",
+                "footer-rights": "© 2026 Ле Виталий. Все права защищены.",
+                "footer-contact": "Связь: ig: talliyyy"
             },
-            en: {
-                nav_adv: "Advanced",
-                welcome_title: "👋 Interactive Web Dev Sandbox",
-                welcome_desc: "Learn HTML, CSS, and JS hands-on! Explore the rendering pipeline, Box Model, Flexbox, Animations, and Async Fetch.",
+            "ko": {
+                "nav-portfolio": "프로젝트",
+                "nav-about": "내 소개",
+                "nav-achiev": "성취",
+                "nav-edu": "나의 목표",
+                "port-title": "나의 프로젝트",
                 
-                html_heading: "1. HTML — Structure",
-                html_theory: "<strong>HTML</strong> creates the backbone of the page (headings, text, buttons).",
-                html_desc_extra: "Click buttons below to append new HTML elements to the DOM in real-time:",
-                html_add_btn: "+ Add Button",
-                html_add_input: "+ Add Input",
-                html_add_img: "+ Add Image",
-                html_clear: "Clear All",
-                editable_heading: "Click me and write your heading!",
+                "proj1-title": "Plants vs Zombies (Gemini)",
+                "proj1-desc": "바이프 코딩(Gemini)을 사용하여 제작되었습니다.",
+                "proj2-title": "Plants vs Zombies (ANTIGRAVITY AI)",
+                "proj2-desc": "ANTIGRAVITY AI에서 제작되었습니다.",
+                "proj3-title": "웹 개발 인터랙티브 샌드박스",
+                "proj3-desc": "HTML, CSS, JavaScript의 작동 원리를 직접 체험해보세요! 렌더링 파이프라인, 박스 모델 조작, Flexbox, 애니메이션 및 비동기 통신 등 핵심 기능들을 실시간으로 테스트할 수 있습니다.",
                 
-                css_heading: "2. CSS — Styling",
-                css_theory: "<strong>CSS</strong> manages visual design, colors, typography, and layout.",
-                css_bg_lbl: "Background:",
-                css_text_lbl: "Text Color:",
-                css_radius_lbl: "Border Radius:",
-                css_shadow_lbl: "Box Shadow:",
-                css_shadow_enable: "Enable",
-                css_demo_title: "Live Design Target",
-                css_demo_desc: "Tweak the controls above to dynamically update CSS properties of this box.",
-
-                js_heading: "3. JavaScript — Logic",
-                js_theory: "<strong>JavaScript</strong> handles interactivity, clicks, timers, and calculations.",
-                clock_title: "Real-time Clock: ",
-                js_click_counter: "Click Count: ",
-                js_random_bg: "🎨 Random Background",
-                
-                adv1_title: "🚀 Advanced 1: Browser Rendering Pipeline",
-                adv1_desc: "The 5-step path converting code into browser pixels:",
-                step1_t: "Step 01: DOM Tree Construction",
-                step1_d: "Browser parses HTML into a node tree (DOM).",
-                step2_t: "Step 02: CSSOM Tree Construction",
-                step2_d: "CSS rules are parsed into the style tree (CSSOM).",
-                step3_t: "Step 03: Render Tree",
-                step3_d: "DOM & CSSOM combine into the Render Tree.",
-                step4_t: "Step 04: Layout (Reflow)",
-                step4_d: "Calculates exact pixel size and coordinates.",
-                step5_t: "Step 05: Paint (Repaint)",
-                step5_d: "Paints pixels, colors, and shadows onto the screen.",
-                
-                adv2_title: "📦 Advanced 2: CSS Box Model",
-                adv2_desc: "Control all 4 box layers using live sliders:",
-                box_content: "Content",
-
-                adv4_title: "🔲 Advanced 4: Flexbox Playground",
-                adv4_desc: "Tweak Flexbox properties to see how elements align and distribute.",
-                flex_justify: "Horizontal (justify-content): ",
-                flex_align: "Vertical (align-items): ",
-
-                adv5_title: "✨ Advanced 5: CSS Animations",
-                adv5_desc: "Use JavaScript to toggle CSS animation classes on an element.",
-                anim_bounce: "🏀 Bounce",
-                anim_spin: "🌀 Spin",
-                anim_pulse: "💗 Pulse",
-                anim_stop: "🛑 Stop",
-
-                adv3_title: "🌐 Advanced 3: Async Fetch",
-                adv3_desc: "Fetch JSON server data without a page reload.",
-                fetch_btn: "📡 Load Profile",
-                fetch_loading: "⏳ Loading data from virtual server...",
-                fetch_success: "✅ Data Loaded:",
-                
-                sandbox_title: "🎮 Comprehensive Sandbox",
-                sandbox_desc: "Toggle technologies ON/OFF to see how they work together.",
-                code_monitor_title: "📄 Live Code Monitor:",
-                preview_title: "👁️ Real-time Preview:",
-                sb_likes_text: "Likes: ",
-                sb_btn: "Click Like",
-                sb_off_html: "<em>[HTML OFF: Element does not exist in DOM]</em>",
-                sb_alert: "JavaScript is OFF! Button click does nothing."
+                "img-place": "이미지 자리",
+                "about-section-title": "나에 대하여",
+                "hero-title": "안녕하세요! 저는 예비탈리입니다",
+                "hero-desc": "저는 2009년 우즈베키스탄에서 태어났습니다. 컴퓨터 공학과 문제 해결에 큰 열정을 가지고 있으며, 프로그래밍이 미래를 만드는 최고의 도구라고 믿습니다.",
+                "skills-title": "기술 스택",
+                "langs-title": "구사 가능 언어",
+                "hobbies-title": "취미",
+                "hobby-basket": "농구",
+                "lang-ko": "한국어",
+                "lang-ru": "러시아어",
+                "lang-en": "영어",
+                "lang-jp": "일본어",
+                "lang-note": "* 학교에서 배우고 있는 언어들입니다 (열심히 연습 중입니다)",
+                "achiev-section-title": "수상 및 인증",
+                "achiev-1-title": "교내 경시대회",
+                "achiev-1-desc": "수학 및 정보학 경시대회에 참가하여 논리력과 분석적 사고를 키웠습니다.",
+                "achiev-2-title": "어학 능력 증명",
+                "achiev-2-desc": "국제적인 학업 환경을 준비하기 위해 TOPIK 및 IELTS 시험을 적극적으로 준비하고 있습니다.",
+                "edu-title": "나의 목표",
+                "ku-title": "목표: 컴퓨터공학과 입학",
+                "ku-why-label": "왜 고려대학교인가?",
+                "ku-why-val": "고려대학교는 뛰어난 공학 프로그램으로 유명합니다. 저는 이곳에서 컴퓨터공학을 전공하여 소프트웨어 공학 지식을 심화하고 싶습니다.",
+                "footer-rights": "© 2026 예비탈리. 모든 권리 보유.",
+                "footer-contact": "연락처: ig: talliyyy"
             }
         };
 
-        // --- 언어 변경 로직 ---
-        let currentLang = 'ko';
-        let jsCounter = 0;
-        const langSelect = document.getElementById('lang-select');
-        
-        function applyLanguage(lang) {
-            currentLang = lang;
-            document.documentElement.lang = lang; 
-            document.querySelectorAll('[data-key]').forEach(el => {
-                const key = el.getAttribute('data-key');
-                if (translations[lang] && translations[lang][key]) {
-                    el.innerHTML = translations[lang][key];
+        let typeTimeout;
+        function typeWriter(text, i, el) {
+            if (i === 0) el.innerHTML = "";
+            if (i < text.length) {
+                el.innerHTML += text.charAt(i);
+                typeTimeout = setTimeout(() => typeWriter(text, i + 1, el), 60);
+            }
+        }
+
+        function changeLanguage() {
+            const lang = document.getElementById("languageSelect").value;
+            const elements = document.querySelectorAll("[data-i18n]");
+            
+            elements.forEach(element => {
+                const key = element.getAttribute("data-i18n");
+                if (translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
                 }
             });
-            
-            // 버튼 텍스트 카운터 유지 업데이트
-            const counterBtn = document.getElementById('js-counter-btn');
-            counterBtn.innerText = translations[currentLang].js_click_counter + jsCounter;
+            document.documentElement.lang = lang;
 
-            updateSandbox(); 
+            clearTimeout(typeTimeout);
+            const heroEl = document.getElementById("hero-title-element");
+            typeWriter(translations[lang]["hero-title"], 0, heroEl);
         }
 
-        langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+        window.onload = () => {
+            changeLanguage();
+            initCanvas();
+        };
 
-        // --- 다크모드 ---
-        document.getElementById('theme-btn').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-        });
-
-        // --- 1. HTML 섹션 개선 로직 (DOM 추가/삭제) ---
-        const htmlContainer = document.getElementById('html-dynamic-container');
-        document.getElementById('add-btn-element').addEventListener('click', () => {
-            const btn = document.createElement('button');
-            btn.innerText = 'New Button';
-            htmlContainer.appendChild(btn);
-        });
-        document.getElementById('add-input-element').addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = 'Type something...';
-            input.style.padding = '8px';
-            input.style.borderRadius = '6px';
-            input.style.border = '1px solid #ccc';
-            htmlContainer.appendChild(input);
-        });
-        document.getElementById('add-img-element').addEventListener('click', () => {
-            const img = document.createElement('img');
-            img.src = 'https://via.placeholder.com/40';
-            img.style.borderRadius = '50%';
-            htmlContainer.appendChild(img);
-        });
-        document.getElementById('clear-html-elements').addEventListener('click', () => {
-            htmlContainer.innerHTML = `<h3 contenteditable="true" style="margin:0; width:100%;" data-key="editable_heading">${translations[currentLang].editable_heading}</h3>`;
-        });
-
-        // --- 2. CSS 섹션 개선 로직 (실시간 타겟 카드 스타일 변경) ---
-        const cssTarget = document.getElementById('css-target-card');
-        const bgPicker = document.getElementById('css-bg-picker');
-        const textPicker = document.getElementById('css-text-picker');
-        const radiusSlider = document.getElementById('css-radius-slider');
-        const shadowToggle = document.getElementById('css-shadow-toggle');
-
-        bgPicker.addEventListener('input', (e) => cssTarget.style.backgroundColor = e.target.value);
-        textPicker.addEventListener('input', (e) => cssTarget.style.color = e.target.value);
-        radiusSlider.addEventListener('input', (e) => cssTarget.style.borderRadius = e.target.value + 'px');
-        shadowToggle.addEventListener('change', (e) => {
-            cssTarget.style.boxShadow = e.target.checked ? '0 10px 25px rgba(0,0,0,0.2)' : 'none';
-        });
-
-        // --- 3. JS 섹션 개선 로직 (시계, 카운터, 랜덤 배경색) ---
-        setInterval(() => {
-            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-
-        const counterBtn = document.getElementById('js-counter-btn');
-        counterBtn.addEventListener('click', () => {
-            jsCounter++;
-            counterBtn.innerText = translations[currentLang].js_click_counter + jsCounter;
-        });
-
-        document.getElementById('js-random-color-btn').addEventListener('click', () => {
-            const colors = ['#fef3c7', '#e0e7ff', '#dcfce7', '#fce7f3', '#f3e8ff'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            document.getElementById('js-sec').style.backgroundColor = randomColor;
-        });
-
-        // --- 박스 모델 슬라이더 ---
-        const padSlider = document.getElementById('pad-slider');
-        const borSlider = document.getElementById('bor-slider');
-        const marSlider = document.getElementById('mar-slider');
-
-        function updateBoxModel() {
-            document.getElementById('pad-val').innerText = padSlider.value + 'px';
-            document.getElementById('bor-val').innerText = borSlider.value + 'px';
-            document.getElementById('mar-val').innerText = marSlider.value + 'px';
-
-            document.getElementById('box-padding-el').style.padding = padSlider.value + 'px';
-            document.getElementById('box-border-el').style.borderWidth = borSlider.value + 'px';
-            document.getElementById('box-margin-el').style.padding = marSlider.value + 'px';
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById("themeBtn");
+            if (body.getAttribute("data-theme") === "dark") {
+                body.removeAttribute("data-theme");
+                btn.textContent = "🌙";
+            } else {
+                body.setAttribute("data-theme", "dark");
+                btn.textContent = "☀️";
+            }
         }
-        padSlider.addEventListener('input', updateBoxModel);
-        borSlider.addEventListener('input', updateBoxModel);
-        marSlider.addEventListener('input', updateBoxModel);
 
-        // --- Flexbox 놀이터 ---
-        const flexContainer = document.getElementById('flex-container');
-        document.getElementById('flex-justify').addEventListener('change', (e) => {
-            flexContainer.style.justifyContent = e.target.value;
-        });
-        document.getElementById('flex-align').addEventListener('change', (e) => {
-            flexContainer.style.alignItems = e.target.value;
-        });
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); 
+                }
+            });
+        }, observerOptions);
 
-        // --- 애니메이션 제어 ---
-        const animBox = document.getElementById('anim-box');
-        function clearAnimations() {
-            animBox.className = 'anim-target'; 
-        }
-        document.getElementById('btn-bounce').addEventListener('click', () => {
-            clearAnimations();
-            void animBox.offsetWidth; 
-            animBox.classList.add('anim-bounce');
-        });
-        document.getElementById('btn-spin').addEventListener('click', () => {
-            clearAnimations();
-            animBox.classList.add('anim-spin');
-        });
-        document.getElementById('btn-pulse').addEventListener('click', () => {
-            clearAnimations();
-            animBox.classList.add('anim-pulse');
-        });
-        document.getElementById('btn-stop').addEventListener('click', clearAnimations);
-
-        // --- 비동기 Fetch ---
-        document.getElementById('fetch-btn').addEventListener('click', () => {
-            const res = document.getElementById('fetch-result');
-            res.innerHTML = translations[currentLang].fetch_loading;
-            
-            setTimeout(() => {
-                const dummyUser = {
-                    id: 1024,
-                    username: "CodeMaster99",
-                    status: "Online 🟢",
-                    skills: ["HTML", "CSS", "JS"]
-                };
-                res.innerHTML = `${translations[currentLang].fetch_success} <br><pre style="margin-top:10px;">${JSON.stringify(dummyUser, null, 2)}</pre>`;
-            }, 1200);
+        document.querySelectorAll('.fade-in').forEach((el) => {
+            observer.observe(el);
         });
 
-        // --- 샌드박스 로직 ---
-        let htmlOn = true;
-        let cssOn = true;
-        let jsOn = true;
-        let likesCount = 0;
+        function initCanvas() {
+            const canvas = document.getElementById('canvas-bg');
+            const ctx = canvas.getContext('2d');
+            let particlesArray;
 
-        const btnHtml = document.getElementById('toggle-html');
-        const btnCss = document.getElementById('toggle-css');
-        const btnJs = document.getElementById('toggle-js');
-        const previewContainer = document.getElementById('sandbox-preview-container');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
-        function updateSandbox() {
-            if (!htmlOn) {
-                previewContainer.innerHTML = translations[currentLang].sb_off_html;
-                return;
+            class Particle {
+                constructor(x, y, directionX, directionY, size, color) {
+                    this.x = x; this.y = y; this.directionX = directionX;
+                    this.directionY = directionY; this.size = size; this.color = color;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                    ctx.fillStyle = document.body.getAttribute("data-theme") === "dark" ? 'rgba(209, 48, 92, 0.3)' : 'rgba(138, 21, 56, 0.2)';
+                    ctx.fill();
+                }
+                update() {
+                    if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                    if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                    this.x += this.directionX; this.y += this.directionY;
+                    this.draw();
+                }
             }
 
-            const likeText = translations[currentLang].sb_likes_text;
-            const btnText = translations[currentLang].sb_btn;
-
-            previewContainer.innerHTML = `
-                <div id="sb-card" class="${cssOn ? 'sandbox-styled-card' : ''}">
-                    <h3 style="margin-top:0;">Profile Card</h3>
-                    <p>${likeText} <span id="sb-likes" style="font-weight:bold;">${likesCount}</span></p>
-                    <button id="sb-btn">${btnText}</button>
-                </div>
-            `;
-
-            document.getElementById('sb-btn').addEventListener('click', () => {
-                if (jsOn) {
-                    likesCount++;
-                    document.getElementById('sb-likes').innerText = likesCount;
-                } else {
-                    alert(translations[currentLang].sb_alert);
+            function init() {
+                particlesArray = [];
+                let numberOfParticles = (canvas.height * canvas.width) / 15000;
+                for (let i = 0; i < numberOfParticles; i++) {
+                    let size = (Math.random() * 3) + 1;
+                    let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                    let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                    let directionX = (Math.random() * 1) - 0.5;
+                    let directionY = (Math.random() * 1) - 0.5;
+                    particlesArray.push(new Particle(x, y, directionX, directionY, size, '#8a1538'));
                 }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                }
+                connect();
+            }
+
+            function connect() {
+                let opacityValue = 1;
+                for (let a = 0; a < particlesArray.length; a++) {
+                    for (let b = a; b < particlesArray.length; b++) {
+                        let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + 
+                                       ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                        if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                            opacityValue = 1 - (distance / 20000);
+                            ctx.strokeStyle = document.body.getAttribute("data-theme") === "dark" ? 'rgba(209, 48, 92,' + opacityValue + ')' : 'rgba(138, 21, 56,' + opacityValue + ')';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                            ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            
+            window.addEventListener('resize', function() {
+                canvas.width = innerWidth; canvas.height = innerHeight;
+                init();
             });
+
+            init(); animate();
         }
-
-        btnHtml.addEventListener('click', () => {
-            htmlOn = !htmlOn;
-            btnHtml.innerText = htmlOn ? '🦴 HTML: ON' : '🦴 HTML: OFF';
-            btnHtml.classList.toggle('off', !htmlOn);
-            updateSandbox();
-        });
-
-        btnCss.addEventListener('click', () => {
-            cssOn = !cssOn;
-            btnCss.innerText = cssOn ? '🎨 CSS: ON' : '🎨 CSS: OFF';
-            btnCss.classList.toggle('off', !cssOn);
-            updateSandbox();
-        });
-
-        btnJs.addEventListener('click', () => {
-            jsOn = !jsOn;
-            btnJs.innerText = jsOn ? '⚡ JavaScript: ON' : '⚡ JavaScript: OFF';
-            btnJs.classList.toggle('off', !jsOn);
-            updateSandbox();
-        });
-
-        // 초기 실행 시 한국어 적용
-        applyLanguage('ko');
     </script>
 </body>
 </html>
