@@ -15,6 +15,7 @@
             color: #334155;
             margin: 0;
             padding-top: 80px;
+            padding-bottom: 90px; /* Добавлен отступ снизу для панели */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -24,11 +25,12 @@
         /* --- 다크 모드 (Dark Mode) --- */
         body.dark-mode { background-color: #0f172a; color: #cbd5e1; }
         body.dark-mode header { background-color: #1e293b; border-bottom: 1px solid #334155; }
+        body.dark-mode .bottom-bar { background-color: #1e293b; border-top: 1px solid #334155; }
         body.dark-mode .card { background-color: #1e293b; color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode select, body.dark-mode input[type="range"] { background-color: #334155; color: #fff; border-color: #475569; }
         body.dark-mode pre { background-color: #020617; color: #a6e22e; }
 
-        /* --- 상단 고정 헤더 --- */
+        /* --- 상단 고정 헤더 (이제 내비게이션만 포함) --- */
         header {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -36,30 +38,19 @@
             background-color: #ffffff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* 중앙 정렬로 변경 */
             align-items: center;
             padding: 0 20px;
             z-index: 1000;
             transition: background-color 0.3s;
         }
 
-        .lang-picker select {
-            padding: 8px 12px;
-            font-size: 14px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            font-weight: bold;
-            cursor: pointer;
-            outline: none;
-        }
-
         /* 중앙 네비게이션 */
         .nav-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
-            gap: 8px;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .nav-center a {
@@ -80,6 +71,35 @@
             color: white;
             transform: translateY(-2px);
         }
+
+        /* --- 하단 고정 컨트롤 바 (Bottom Bar) --- */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 70px;
+            background-color: #ffffff;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+            transition: background-color 0.3s;
+        }
+
+        .lang-picker select {
+            padding: 10px 15px;
+            font-size: 15px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+        
+        .lang-picker select:hover { border-color: #3b82f6; }
 
         /* --- 레이아웃 및 카드 --- */
         .container {
@@ -236,23 +256,11 @@
 
     <!-- 헤더 / 네비게이션 -->
     <header>
-        <div class="lang-picker">
-            <select id="lang-select">
-                <option value="ko" selected>🌐 한국어</option>
-                <option value="ru">🌐 Русский</option>
-                <option value="en">🌐 English</option>
-            </select>
-        </div>
-
         <div class="nav-center">
             <a href="#html-sec">HTML</a>
             <a href="#css-sec">CSS</a>
             <a href="#js-sec">JavaScript</a>
             <a href="#adv-sec" data-key="nav_adv">심화 / Advanced</a>
-        </div>
-
-        <div>
-            <button id="theme-btn" style="margin:0; padding:8px 14px; font-size:12px; border-radius: 20px;">🌓 Theme</button>
         </div>
     </header>
 
@@ -266,7 +274,7 @@
             </p>
         </section>
 
-        <!-- HTML 섹션 (개선됨) -->
+        <!-- HTML 섹션 -->
         <section id="html-sec" class="card">
             <h2 class="section-title" style="color: #ea580c;" data-key="html_heading">1. HTML — 구조와 뼈대</h2>
             <p data-key="html_theory"><strong>HTML</strong>은 웹 페이지의 요소(제목, 텍스트, 버튼, 이미지 등)가 어디에 위치할지 뼈대를 만듭니다.</p>
@@ -286,7 +294,7 @@
             </div>
         </section>
 
-        <!-- CSS 섹션 (개선됨) -->
+        <!-- CSS 섹션 -->
         <section id="css-sec" class="card">
             <h2 class="section-title" style="color: #2563eb;" data-key="css_heading">2. CSS — 스타일과 디자인</h2>
             <p data-key="css_theory"><strong>CSS</strong>는 시각적 스타일, 색상, 폰트 및 레이아웃을 제어하여 웹사이트를 아름답게 꾸며줍니다.</p>
@@ -318,7 +326,7 @@
             </div>
         </section>
 
-        <!-- JS 섹션 (개선됨) -->
+        <!-- JS 섹션 -->
         <section id="js-sec" class="card">
             <h2 class="section-title" style="color: #ca8a04;" data-key="js_heading">3. JavaScript — 로직과 생동감</h2>
             <p data-key="js_theory"><strong>JavaScript</strong>는 클릭, 타이머, 계산 등을 처리하여 정적인 사이트를 동적으로 살아 움직이게 합니다.</p>
@@ -492,6 +500,20 @@
         </div>
     </div>
 
+    <!-- 하단 고정 바 (언어 선택 & 테마 변경) -->
+    <div class="bottom-bar">
+        <div class="lang-picker">
+            <select id="lang-select">
+                <option value="ko" selected>🌐 한국어</option>
+                <option value="ru">🌐 Русский</option>
+                <option value="en">🌐 English</option>
+            </select>
+        </div>
+        <div>
+            <button id="theme-btn" style="margin:0; padding:10px 18px; font-size:15px; border-radius: 12px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🌓 Theme</button>
+        </div>
+    </div>
+
     <script>
         // --- 언어 팩 (Translations) ---
         const translations = {
@@ -574,7 +596,7 @@
                 welcome_title: "👋 Интерактивная веб-лаборатория",
                 welcome_desc: "Изучайте работу HTML, CSS и JavaScript на практике! Здесь представлены визуализаторы рендеринга, редактор Box Model, Flexbox, анимации и песочница.",
                 
-                html_heading: "1. HTML — Карка스 и Структура",
+                html_heading: "1. HTML — Каркас и Структура",
                 html_theory: "<strong>HTML</strong> создает каркас страницы (заголовки, текст, кнопки, картинки).",
                 html_desc_extra: "Нажимайте кнопки ниже, чтобы динамически добавлять HTML-элементы в DOM:",
                 html_add_btn: "+ Кнопка",
@@ -602,228 +624,229 @@
                 adv1_title: "🚀 Продвинутый 1: Конвейер рендеринга",
                 adv1_desc: "5-шаговый путь превращения кода в графику на экране:",
                 step1_t: "Step 01: Создание DOM дерева",
-                step1_d: "Браузер разбирает HTML и создает древовидную структуру (DOM).",
+                step1_d: "Браузер разбирает HTML и создает древовидную структуру элементов (DOM).",
                 step2_t: "Step 02: Создание CSSOM дерева",
-                step2_d: "Анализируются стили CSS и формируется дерево стилей.",
-                step3_t: "Step 03: Render Tree",
-                step3_d: "DOM и CSSOM объединяются в Дерево Рендера (видимые элементы).",
+                step2_d: "Браузер анализирует CSS и создает дерево стилей, привязанных к узлам DOM.",
+                step3_t: "Step 03: Сборка Render Tree",
+                step3_d: "DOM и CSSOM объединяются в дерево рендеринга (только видимые элементы).",
                 step4_t: "Step 04: Layout (Reflow)",
-                step4_d: "Расчет точных координат и пиксельных размеров каждого элемента.",
+                step4_d: "Вычисляются точные размеры и позиции (координаты) каждого элемента на экране.",
                 step5_t: "Step 05: Paint (Repaint)",
-                step5_d: "Отрисовка пикселей, цветов, теней и текста на экране.",
+                step5_d: "Отрисовка пикселей: применяются цвета, тени, текст на рассчитанные координаты.",
                 
-                adv2_title: "📦 Продвинутый 2: Управление Box Model",
-                adv2_desc: "Управляйте 4 слоями каждого веб-элемента с помощью ползунков:",
+                adv2_title: "📦 Продвинутый 2: CSS Box Model",
+                adv2_desc: "Управляйте 4 слоями, из которых состоит каждый элемент на веб-странице:",
                 box_content: "Content (Содержимое)",
                 
-                adv4_title: "🔲 Продвинутый 4: Песочница CSS Flexbox",
-                adv4_desc: "Меняйте свойства Flexbox, чтобы понять, как легко выравнивать элементы.",
+                adv4_title: "🔲 Продвинутый 4: Песочница Flexbox",
+                adv4_desc: "Flexbox — мощный инструмент выравнивания. Попробуйте разные варианты:",
                 flex_justify: "По горизонтали (justify-content): ",
                 flex_align: "По вертикали (align-items): ",
-
-                adv5_title: "✨ Продвинутый 5: Управление анимациями",
-                adv5_desc: "Используйте JavaScript для добавления CSS-классов анимации объекту.",
-                anim_bounce: "🏀 Прыжок",
-                anim_spin: "🌀 Вращение",
-                anim_pulse: "💗 Пульсация",
-                anim_stop: "🛑 Стоп",
-
-                adv3_title: "🌐 Продвинутый 3: Асинхронный Fetch",
-                adv3_desc: "Получение данных с сервера (JSON) без перезагрузки страницы.",
-                fetch_btn: "📡 Загрузить профиль",
-                fetch_loading: "⏳ Загрузка данных с виртуального сервера...",
-                fetch_success: "✅ Данные получены:",
                 
-                sandbox_title: "🎮 Комплексная песочница",
-                sandbox_desc: "Включайте и выключайте языки, чтобы увидеть их взаимодействие.",
-                code_monitor_title: "📄 Монитор кода:",
-                preview_title: "👁️ Результат:",
+                adv5_title: "✨ Продвинутый 5: Управление CSS-Анимацией",
+                adv5_desc: "Используйте JavaScript для добавления классов с CSS-анимацией.",
+                anim_bounce: "🏀 Прыжок (Bounce)",
+                anim_spin: "🌀 Вращение (Spin)",
+                anim_pulse: "💗 Пульсация (Pulse)",
+                anim_stop: "🛑 Стоп (Stop)",
+
+                adv3_title: "🌐 Продвинутый 3: Асинхронные запросы (Fetch API)",
+                adv3_desc: "Получение данных (JSON) с виртуального сервера без перезагрузки страницы.",
+                fetch_btn: "📡 Загрузить профиль с сервера",
+                fetch_loading: "⏳ Загрузка данных с виртуального сервера...",
+                fetch_success: "✅ Данные загружены:",
+                
+                sandbox_title: "🎮 Комплексная Песочница",
+                sandbox_desc: "Включайте и выключайте технологии, чтобы увидеть, как они работают вместе.",
+                code_monitor_title: "📄 Монитор Live-кода:",
+                preview_title: "👁️ Результат в реальном времени:",
                 sb_likes_text: "Лайки: ",
                 sb_btn: "Поставить лайк",
-                sb_off_html: "<em>[HTML ВЫКЛ: Элемент не существует в DOM]</em>",
-                sb_alert: "JavaScript ВЫКЛЮЧЕН! Клик по кнопке ничего не делает."
+                sb_off_html: "<em>[HTML ВЫКЛ: Элементов нет в DOM]</em>",
+                sb_alert: "JavaScript отключен! Кнопка не реагирует."
             },
             en: {
                 nav_adv: "Advanced",
-                welcome_title: "👋 Interactive Web Dev Sandbox",
-                welcome_desc: "Learn HTML, CSS, and JS hands-on! Explore the rendering pipeline, Box Model, Flexbox, Animations, and Async Fetch.",
+                welcome_title: "👋 Web Dev Interactive Sandbox",
+                welcome_desc: "Experience how HTML, CSS, and JavaScript work together! Test the rendering pipeline, box model, Flexbox, animations, and async logic in real-time.",
                 
-                html_heading: "1. HTML — Structure",
-                html_theory: "<strong>HTML</strong> creates the backbone of the page (headings, text, buttons).",
-                html_desc_extra: "Click buttons below to append new HTML elements to the DOM in real-time:",
+                html_heading: "1. HTML — Structure & Skeleton",
+                html_theory: "<strong>HTML</strong> creates the skeleton (headings, text, buttons, images) of a webpage.",
+                html_desc_extra: "Click the buttons below to dynamically add HTML elements to the DOM:",
                 html_add_btn: "+ Add Button",
                 html_add_input: "+ Add Input",
                 html_add_img: "+ Add Image",
                 html_clear: "Clear All",
-                editable_heading: "Click me and write your heading!",
+                editable_heading: "Click here and type your own heading!",
                 
-                css_heading: "2. CSS — Styling",
-                css_theory: "<strong>CSS</strong> manages visual design, colors, typography, and layout.",
-                css_bg_lbl: "Background:",
+                css_heading: "2. CSS — Style & Design",
+                css_theory: "<strong>CSS</strong> controls visual styling, colors, fonts, and layout.",
+                css_bg_lbl: "Background Color:",
                 css_text_lbl: "Text Color:",
                 css_radius_lbl: "Border Radius:",
-                css_shadow_lbl: "Box Shadow:",
+                css_shadow_lbl: "Shadow Effect:",
                 css_shadow_enable: "Enable",
-                css_demo_title: "Live Design Target",
-                css_demo_desc: "Tweak the controls above to dynamically update CSS properties of this box.",
+                css_demo_title: "Real-time Demo Target",
+                css_demo_desc: "Use the controllers above to instantly change the CSS styling of this box.",
 
-                js_heading: "3. JavaScript — Logic",
-                js_theory: "<strong>JavaScript</strong> handles interactivity, clicks, timers, and calculations.",
-                clock_title: "Real-time Clock: ",
+                js_heading: "3. JavaScript — Logic & Dynamics",
+                js_theory: "<strong>JavaScript</strong> handles clicks, timers, and calculations to make the site dynamic.",
+                clock_title: "Live Clock: ",
                 js_click_counter: "Click Count: ",
-                js_random_bg: "🎨 Random Background",
+                js_random_bg: "🎨 Random Background Color",
                 
                 adv1_title: "🚀 Advanced 1: Browser Rendering Pipeline",
-                adv1_desc: "The 5-step path converting code into browser pixels:",
-                step1_t: "Step 01: DOM Tree Construction",
-                step1_d: "Browser parses HTML into a node tree (DOM).",
-                step2_t: "Step 02: CSSOM Tree Construction",
-                step2_d: "CSS rules are parsed into the style tree (CSSOM).",
-                step3_t: "Step 03: Render Tree",
-                step3_d: "DOM & CSSOM combine into the Render Tree.",
+                adv1_desc: "The 5-step process of turning code into pixels on the screen:",
+                step1_t: "Step 01: Build DOM Tree",
+                step1_d: "The browser parses HTML and builds a tree structure of nodes (DOM).",
+                step2_t: "Step 02: Build CSSOM Tree",
+                step2_d: "The browser analyzes CSS rules and attaches styles to create the CSSOM.",
+                step3_t: "Step 03: Combine into Render Tree",
+                step3_d: "DOM and CSSOM are merged into the Render Tree (only visible elements).",
                 step4_t: "Step 04: Layout (Reflow)",
-                step4_d: "Calculates exact pixel size and coordinates.",
+                step4_d: "Calculates the exact size and coordinates of each element on the screen.",
                 step5_t: "Step 05: Paint (Repaint)",
-                step5_d: "Paints pixels, colors, and shadows onto the screen.",
+                step5_d: "Draws pixels (colors, shadows, text) onto the calculated coordinates.",
                 
                 adv2_title: "📦 Advanced 2: CSS Box Model",
-                adv2_desc: "Control all 4 box layers using live sliders:",
+                adv2_desc: "Control the 4 layers that wrap every element on the web:",
                 box_content: "Content",
-
+                
                 adv4_title: "🔲 Advanced 4: Flexbox Playground",
-                adv4_desc: "Tweak Flexbox properties to see how elements align and distribute.",
+                adv4_desc: "Play with Flexbox properties to align and distribute items:",
                 flex_justify: "Horizontal (justify-content): ",
                 flex_align: "Vertical (align-items): ",
-
-                adv5_title: "✨ Advanced 5: CSS Animations",
+                
+                adv5_title: "✨ Advanced 5: CSS Animation Control",
                 adv5_desc: "Use JavaScript to toggle CSS animation classes on an element.",
                 anim_bounce: "🏀 Bounce",
                 anim_spin: "🌀 Spin",
                 anim_pulse: "💗 Pulse",
                 anim_stop: "🛑 Stop",
 
-                adv3_title: "🌐 Advanced 3: Async Fetch",
-                adv3_desc: "Fetch JSON server data without a page reload.",
-                fetch_btn: "📡 Load Profile",
-                fetch_loading: "⏳ Loading data from virtual server...",
-                fetch_success: "✅ Data Loaded:",
+                adv3_title: "🌐 Advanced 3: Async Fetch API",
+                adv3_desc: "Fetch JSON data from a virtual server without reloading the page.",
+                fetch_btn: "📡 Fetch Profile Data",
+                fetch_loading: "⏳ Fetching data from virtual server...",
+                fetch_success: "✅ Data loaded successfully:",
                 
                 sandbox_title: "🎮 Comprehensive Sandbox",
-                sandbox_desc: "Toggle technologies ON/OFF to see how they work together.",
+                sandbox_desc: "Toggle technologies on/off to see how they combine.",
                 code_monitor_title: "📄 Live Code Monitor:",
-                preview_title: "👁️ Real-time Preview:",
+                preview_title: "👁️ Live Output Preview:",
                 sb_likes_text: "Likes: ",
-                sb_btn: "Click Like",
-                sb_off_html: "<em>[HTML OFF: Element does not exist in DOM]</em>",
-                sb_alert: "JavaScript is OFF! Button click does nothing."
+                sb_btn: "Hit Like",
+                sb_off_html: "<em>[HTML OFF: No elements in DOM]</em>",
+                sb_alert: "JavaScript is OFF! Button won't respond."
             }
         };
 
-        // --- 언어 변경 로직 ---
         let currentLang = 'ko';
-        let jsCounter = 0;
-        const langSelect = document.getElementById('lang-select');
-        
-        function applyLanguage(lang) {
+
+        function updateLanguage(lang) {
             currentLang = lang;
-            document.documentElement.lang = lang; 
+            const t = translations[lang];
             document.querySelectorAll('[data-key]').forEach(el => {
                 const key = el.getAttribute('data-key');
-                if (translations[lang] && translations[lang][key]) {
-                    el.innerHTML = translations[lang][key];
+                if (t[key]) {
+                    el.innerHTML = t[key];
                 }
             });
-            
-            // 버튼 텍스트 카운터 유지 업데이트
-            const counterBtn = document.getElementById('js-counter-btn');
-            counterBtn.innerText = translations[currentLang].js_click_counter + jsCounter;
-
-            updateSandbox(); 
+            // 특수 텍스트 업데이트
+            jsCounterBtn.innerText = t.js_click_counter + jsCount;
+            if (sbBtn) sbBtn.innerText = t.sb_btn;
+            if (sbLikesText) sbLikesText.innerHTML = t.sb_likes_text + `<span id="sb-likes">${sbLikesCount}</span>`;
+            updateCodeMonitor();
         }
 
-        langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+        document.getElementById('lang-select').addEventListener('change', (e) => {
+            updateLanguage(e.target.value);
+        });
 
-        // --- 다크모드 ---
-        document.getElementById('theme-btn').addEventListener('click', () => {
+        // --- 다크 모드 토글 ---
+        const themeBtn = document.getElementById('theme-btn');
+        themeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
         });
 
-        // --- 1. HTML 섹션 개선 로직 (DOM 추가/삭제) ---
+        // --- HTML 상호작용 ---
         const htmlContainer = document.getElementById('html-dynamic-container');
         document.getElementById('add-btn-element').addEventListener('click', () => {
             const btn = document.createElement('button');
-            btn.innerText = 'New Button';
+            btn.innerText = "New Btn";
             htmlContainer.appendChild(btn);
         });
         document.getElementById('add-input-element').addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = 'Type something...';
-            input.style.padding = '8px';
-            input.style.borderRadius = '6px';
-            input.style.border = '1px solid #ccc';
-            htmlContainer.appendChild(input);
+            const inp = document.createElement('input');
+            inp.type = "text";
+            inp.placeholder = "Input...";
+            inp.style.padding = "5px";
+            inp.style.borderRadius = "4px";
+            inp.style.border = "1px solid #ccc";
+            htmlContainer.appendChild(inp);
         });
         document.getElementById('add-img-element').addEventListener('click', () => {
             const img = document.createElement('img');
-            img.src = 'https://via.placeholder.com/40';
-            img.style.borderRadius = '50%';
+            img.src = "https://via.placeholder.com/50x50/3b82f6/ffffff?text=IMG";
+            img.style.borderRadius = "8px";
             htmlContainer.appendChild(img);
         });
         document.getElementById('clear-html-elements').addEventListener('click', () => {
-            htmlContainer.innerHTML = `<h3 contenteditable="true" style="margin:0; width:100%;" data-key="editable_heading">${translations[currentLang].editable_heading}</h3>`;
+            htmlContainer.innerHTML = '<h3 contenteditable="true" style="margin:0; width:100%;" data-key="editable_heading">' + translations[currentLang].editable_heading + '</h3>';
         });
 
-        // --- 2. CSS 섹션 개선 로직 (실시간 타겟 카드 스타일 변경) ---
+        // --- CSS 상호작용 ---
         const cssTarget = document.getElementById('css-target-card');
-        const bgPicker = document.getElementById('css-bg-picker');
-        const textPicker = document.getElementById('css-text-picker');
-        const radiusSlider = document.getElementById('css-radius-slider');
-        const shadowToggle = document.getElementById('css-shadow-toggle');
-
-        bgPicker.addEventListener('input', (e) => cssTarget.style.backgroundColor = e.target.value);
-        textPicker.addEventListener('input', (e) => cssTarget.style.color = e.target.value);
-        radiusSlider.addEventListener('input', (e) => cssTarget.style.borderRadius = e.target.value + 'px');
-        shadowToggle.addEventListener('change', (e) => {
-            cssTarget.style.boxShadow = e.target.checked ? '0 10px 25px rgba(0,0,0,0.2)' : 'none';
+        document.getElementById('css-bg-picker').addEventListener('input', (e) => cssTarget.style.backgroundColor = e.target.value);
+        document.getElementById('css-text-picker').addEventListener('input', (e) => cssTarget.style.color = e.target.value);
+        document.getElementById('css-radius-slider').addEventListener('input', (e) => cssTarget.style.borderRadius = e.target.value + 'px');
+        document.getElementById('css-shadow-toggle').addEventListener('change', (e) => {
+            cssTarget.style.boxShadow = e.target.checked ? "0 10px 25px rgba(0,0,0,0.3)" : "none";
         });
 
-        // --- 3. JS 섹션 개선 로직 (시계, 카운터, 랜덤 배경색) ---
+        // --- JavaScript 상호작용 ---
+        const liveClock = document.getElementById('live-clock');
         setInterval(() => {
-            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString();
+            const now = new Date();
+            liveClock.innerText = now.toLocaleTimeString('en-US', {hour12: false});
         }, 1000);
 
-        const counterBtn = document.getElementById('js-counter-btn');
-        counterBtn.addEventListener('click', () => {
-            jsCounter++;
-            counterBtn.innerText = translations[currentLang].js_click_counter + jsCounter;
+        let jsCount = 0;
+        const jsCounterBtn = document.getElementById('js-counter-btn');
+        jsCounterBtn.addEventListener('click', () => {
+            jsCount++;
+            jsCounterBtn.innerText = translations[currentLang].js_click_counter + jsCount;
         });
 
         document.getElementById('js-random-color-btn').addEventListener('click', () => {
-            const colors = ['#fef3c7', '#e0e7ff', '#dcfce7', '#fce7f3', '#f3e8ff'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            document.getElementById('js-sec').style.backgroundColor = randomColor;
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            document.getElementById('js-sec').style.borderLeft = `6px solid ${randomColor}`;
+            document.getElementById('js-sec').style.boxShadow = `0 4px 15px ${randomColor}44`;
         });
 
-        // --- 박스 모델 슬라이더 ---
+        // --- 심화 2: Box Model 조작 ---
         const padSlider = document.getElementById('pad-slider');
         const borSlider = document.getElementById('bor-slider');
         const marSlider = document.getElementById('mar-slider');
+        
+        const boxPadEl = document.getElementById('box-padding-el');
+        const boxBorEl = document.getElementById('box-border-el');
+        const boxMarEl = document.getElementById('box-margin-el');
 
-        function updateBoxModel() {
-            document.getElementById('pad-val').innerText = padSlider.value + 'px';
-            document.getElementById('bor-val').innerText = borSlider.value + 'px';
-            document.getElementById('mar-val').innerText = marSlider.value + 'px';
+        padSlider.addEventListener('input', (e) => {
+            document.getElementById('pad-val').innerText = e.target.value + 'px';
+            boxPadEl.style.padding = e.target.value + 'px';
+        });
+        borSlider.addEventListener('input', (e) => {
+            document.getElementById('bor-val').innerText = e.target.value + 'px';
+            boxBorEl.style.borderWidth = e.target.value + 'px';
+        });
+        marSlider.addEventListener('input', (e) => {
+            document.getElementById('mar-val').innerText = e.target.value + 'px';
+            boxMarEl.style.padding = e.target.value + 'px';
+        });
 
-            document.getElementById('box-padding-el').style.padding = padSlider.value + 'px';
-            document.getElementById('box-border-el').style.borderWidth = borSlider.value + 'px';
-            document.getElementById('box-margin-el').style.padding = marSlider.value + 'px';
-        }
-        padSlider.addEventListener('input', updateBoxModel);
-        borSlider.addEventListener('input', updateBoxModel);
-        marSlider.addEventListener('input', updateBoxModel);
-
-        // --- Flexbox 놀이터 ---
+        // --- 심화 4: Flexbox ---
         const flexContainer = document.getElementById('flex-container');
         document.getElementById('flex-justify').addEventListener('change', (e) => {
             flexContainer.style.justifyContent = e.target.value;
@@ -832,103 +855,112 @@
             flexContainer.style.alignItems = e.target.value;
         });
 
-        // --- 애니메이션 제어 ---
+        // --- 심화 5: Animation ---
         const animBox = document.getElementById('anim-box');
-        function clearAnimations() {
+        document.getElementById('btn-bounce').addEventListener('click', () => resetAnim('anim-bounce'));
+        document.getElementById('btn-spin').addEventListener('click', () => resetAnim('anim-spin'));
+        document.getElementById('btn-pulse').addEventListener('click', () => resetAnim('anim-pulse'));
+        document.getElementById('btn-stop').addEventListener('click', () => animBox.className = 'anim-target');
+
+        function resetAnim(animClass) {
             animBox.className = 'anim-target'; 
+            void animBox.offsetWidth; // Trigger reflow to restart animation
+            animBox.classList.add(animClass);
         }
-        document.getElementById('btn-bounce').addEventListener('click', () => {
-            clearAnimations();
-            void animBox.offsetWidth; 
-            animBox.classList.add('anim-bounce');
-        });
-        document.getElementById('btn-spin').addEventListener('click', () => {
-            clearAnimations();
-            animBox.classList.add('anim-spin');
-        });
-        document.getElementById('btn-pulse').addEventListener('click', () => {
-            clearAnimations();
-            animBox.classList.add('anim-pulse');
-        });
-        document.getElementById('btn-stop').addEventListener('click', clearAnimations);
 
-        // --- 비동기 Fetch ---
-        document.getElementById('fetch-btn').addEventListener('click', () => {
-            const res = document.getElementById('fetch-result');
-            res.innerHTML = translations[currentLang].fetch_loading;
+        // --- 심화 3: Async Fetch ---
+        const fetchBtn = document.getElementById('fetch-btn');
+        const fetchResult = document.getElementById('fetch-result');
+        fetchBtn.addEventListener('click', () => {
+            fetchResult.innerHTML = `<span style="color:#ca8a04;">${translations[currentLang].fetch_loading}</span>`;
             
+            // 가짜 딜레이 생성 (네트워크 시뮬레이션)
             setTimeout(() => {
-                const dummyUser = {
-                    id: 1024,
-                    username: "CodeMaster99",
-                    status: "Online 🟢",
-                    skills: ["HTML", "CSS", "JS"]
+                const fakeData = {
+                    id: 1,
+                    username: "dev_master",
+                    role: "Frontend Engineer",
+                    skills: ["HTML", "CSS", "JavaScript", "React"]
                 };
-                res.innerHTML = `${translations[currentLang].fetch_success} <br><pre style="margin-top:10px;">${JSON.stringify(dummyUser, null, 2)}</pre>`;
-            }, 1200);
+                fetchResult.innerHTML = `
+                    <span style="color:#16a34a;">${translations[currentLang].fetch_success}</span>
+                    <pre style="margin-top:10px;">${JSON.stringify(fakeData, null, 2)}</pre>
+                `;
+            }, 1500);
         });
 
-        // --- 샌드박스 로직 ---
-        let htmlOn = true;
-        let cssOn = true;
-        let jsOn = true;
-        let likesCount = 0;
-
-        const btnHtml = document.getElementById('toggle-html');
-        const btnCss = document.getElementById('toggle-css');
-        const btnJs = document.getElementById('toggle-js');
-        const previewContainer = document.getElementById('sandbox-preview-container');
+        // --- 샌드박스 상태 관리 ---
+        let sbState = { html: true, css: true, js: true };
+        let sbLikesCount = 0;
+        
+        const sbContainer = document.getElementById('sandbox-preview-container');
+        let sbBtn = document.getElementById('sb-btn');
+        let sbLikesText = document.getElementById('sb-likes')?.parentElement;
+        const codeMonitor = document.getElementById('code-monitor');
 
         function updateSandbox() {
-            if (!htmlOn) {
-                previewContainer.innerHTML = translations[currentLang].sb_off_html;
-                return;
+            // HTML 제어
+            if (sbState.html) {
+                sbContainer.innerHTML = `
+                    <div id="sb-card" class="${sbState.css ? 'sandbox-styled-card' : ''}">
+                        <h3 id="sb-title" style="margin-top:0;">사용자 프로필</h3>
+                        <p data-key="sb_likes_text">${translations[currentLang].sb_likes_text}<span id="sb-likes">${sbLikesCount}</span></p>
+                        <button id="sb-btn">${translations[currentLang].sb_btn}</button>
+                    </div>
+                `;
+                sbBtn = document.getElementById('sb-btn');
+                sbLikesText = document.getElementById('sb-likes').parentElement;
+
+                // JS 제어 (이벤트 리스너 다시 달기)
+                sbBtn.addEventListener('click', () => {
+                    if (sbState.js) {
+                        sbLikesCount++;
+                        document.getElementById('sb-likes').innerText = sbLikesCount;
+                    } else {
+                        alert(translations[currentLang].sb_alert);
+                    }
+                });
+            } else {
+                sbContainer.innerHTML = translations[currentLang].sb_off_html;
             }
-
-            const likeText = translations[currentLang].sb_likes_text;
-            const btnText = translations[currentLang].sb_btn;
-
-            previewContainer.innerHTML = `
-                <div id="sb-card" class="${cssOn ? 'sandbox-styled-card' : ''}">
-                    <h3 style="margin-top:0;">Profile Card</h3>
-                    <p>${likeText} <span id="sb-likes" style="font-weight:bold;">${likesCount}</span></p>
-                    <button id="sb-btn">${btnText}</button>
-                </div>
-            `;
-
-            document.getElementById('sb-btn').addEventListener('click', () => {
-                if (jsOn) {
-                    likesCount++;
-                    document.getElementById('sb-likes').innerText = likesCount;
-                } else {
-                    alert(translations[currentLang].sb_alert);
-                }
-            });
+            updateCodeMonitor();
         }
 
-        btnHtml.addEventListener('click', () => {
-            htmlOn = !htmlOn;
-            btnHtml.innerText = htmlOn ? '🦴 HTML: ON' : '🦴 HTML: OFF';
-            btnHtml.classList.toggle('off', !htmlOn);
-            updateSandbox();
+        function updateCodeMonitor() {
+            let code = "";
+            if (sbState.html) {
+                code += `<!-- HTML -->\n<div${sbState.css ? ' class="card"' : ''}>\n  <h3>사용자 프로필</h3>\n  <p>좋아요 횟수: <span id="likes">${sbLikesCount}</span></p>\n  <button id="btn">좋아요 누르기</button>\n</div>\n`;
+            } else {
+                code += `<!-- HTML (Empty) -->\n`;
+            }
+            
+            if (sbState.css) {
+                code += `\n/* CSS */\n.card {\n  background: linear-gradient(...);\n  color: white;\n  border-radius: 16px;\n}\n`;
+            }
+            
+            if (sbState.js) {
+                code += `\n// JavaScript\ndocument.getElementById('btn').onclick = () => {\n  likes++;\n  updateDOM();\n};\n`;
+            }
+            codeMonitor.innerText = code;
+        }
+
+        // 토글 버튼 이벤트
+        ['html', 'css', 'js'].forEach(tech => {
+            const btn = document.getElementById(`toggle-${tech}`);
+            btn.addEventListener('click', () => {
+                sbState[tech] = !sbState[tech];
+                btn.classList.toggle('off');
+                const label = tech.toUpperCase();
+                const icon = tech === 'html' ? '🦴' : (tech === 'css' ? '🎨' : '⚡');
+                btn.innerText = `${icon} ${label}: ${sbState[tech] ? 'ON' : 'OFF'}`;
+                updateSandbox();
+            });
         });
 
-        btnCss.addEventListener('click', () => {
-            cssOn = !cssOn;
-            btnCss.innerText = cssOn ? '🎨 CSS: ON' : '🎨 CSS: OFF';
-            btnCss.classList.toggle('off', !cssOn);
-            updateSandbox();
-        });
+        // 초기화
+        updateSandbox();
+        updateLanguage('ko');
 
-        btnJs.addEventListener('click', () => {
-            jsOn = !jsOn;
-            btnJs.innerText = jsOn ? '⚡ JavaScript: ON' : '⚡ JavaScript: OFF';
-            btnJs.classList.toggle('off', !jsOn);
-            updateSandbox();
-        });
-
-        // 초기 실행 시 한국어 적용
-        applyLanguage('ko');
     </script>
 </body>
 </html>
