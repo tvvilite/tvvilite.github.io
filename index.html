@@ -121,12 +121,11 @@
             box-shadow: 0 4px 15px var(--shadow); transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
             border-left: 5px solid var(--primary-color); display: flex; overflow: hidden;
             
-            /* Новые стили для того, чтобы ссылки выглядели как обычные блоки */
             text-decoration: none; 
             color: inherit; 
             cursor: pointer;
         }
-        .portfolio-item { min-height: 200px; display: flex; } /* Убедимся, что flex работает для a-тега */
+        .portfolio-item { min-height: 200px; display: flex; } 
         .achiev-item { padding: 25px; align-items: center; gap: 20px; }
 
         .portfolio-item:hover, .achiev-item:hover {
@@ -209,7 +208,7 @@
     <section id="portfolio">
         <h2 class="fade-in"><i class="fa-solid fa-code-branch"></i> <span data-i18n="port-title">My Projects</span></h2>
         
-        <div class="portfolio-grid">
+        div class="portfolio-grid">
             <!-- ПРОЕКТ 1: Plants vs Zombies (Gemini) -->
             <a href="project/Pvz/pvzFINAL.html" target="_blank" class="portfolio-item fade-in">
                 <div class="project-info">
@@ -242,10 +241,15 @@
                     <img src="image3.png" alt="Web Dev Interactive Sandbox">
                 </div>
             </a>
-        </div>
+
+            <!-- ПРОЕКТ 4: Random dice -->
+            <a href="project/random dice/RANDOM DICE.html" target="_blank" class="portfolio-item fade-in">
+                <div class="project-info">
+                    <h3><i class="fa-solid fa-laptop-code"></i> <span data-i18n="proj3-title">Web Dev Interactive Sandbox</span></h3>
+                    <p data-i18n="proj3-desc">An interactive web application that simulates rolling dice. Built to practice JavaScript logic, Random Number Generation (RNG), and DOM manipulation.</p>
                 </div>
-            </a>
-        </div>
+                <div class="project-image">
+                    <img src="image4.png" alt="Web Dev Interactive Sandbox">
                 </div>
             </a>
         </div>
@@ -329,6 +333,8 @@
                 "proj2-desc": "Created in ANTIGRAVITY AI.",
                 "proj3-title": "Web Dev Interactive Sandbox",
                 "proj3-desc": "Experience how HTML, CSS, and JavaScript work firsthand! Test core features like rendering pipelines, box model manipulation, Flexbox, animations, and asynchronous communication in real-time.",
+                "proj4-title": "New Project Title",
+                "proj4-desc": "Description for the fourth project goes here.",
                 
                 "img-place": "Image Placeholder",
                 "about-section-title": "About Me",
@@ -344,12 +350,12 @@
                 "lang-jp": "Japanese",
                 "lang-note": "* Learning these at school (actively practicing)",
                 "achiev-section-title": "Achievements & Awards",
-                "achiev-1-title": "Academic Competitions",
-                "achiev-1-desc": "Participation in school-level mathematics and informatics competitions, developing analytical thinking and logic.",
                 "achiev-2-title": "Language Proficiency",
                 "achiev-2-desc": "Actively preparing for TOPIK and IELTS exams to prove readiness for international academic environments.",
                 "edu-title": "Academic Goal",
                 "ku-title": "Target: Department of Computer Science & Engineering",
+                "ku-why-label": "Why KU?",
+                "ku-why-val": "Korea University is renowned for its outstanding engineering programs. I am eager to study Computer Science here to deepen my knowledge in software engineering among the brightest minds.",
                 "footer-rights": "© 2026 LE VITALIY. All rights reserved.",
                 "footer-contact": "Contact: ig: talliyyy"
             },
@@ -366,6 +372,8 @@
                 "proj2-desc": "Сделан в ANTIGRAVITY AI.",
                 "proj3-title": "Интерактивная песочница веб-разработки",
                 "proj3-desc": "Познакомьтесь с принципами работы HTML, CSS и JavaScript на практике! Тестируйте конвейер рендеринга, манипуляции с блочной моделью, Flexbox, анимации и асинхронную связь в реальном времени.",
+                "proj4-title": "Название 4-го проекта",
+                "proj4-desc": "Здесь будет описание четвертого проекта.",
                 
                 "img-place": "Место для картинки",
                 "about-section-title": "Кто я",
@@ -381,12 +389,12 @@
                 "lang-jp": "Японский",
                 "lang-note": "* Изучаю эти языки в школе (пока не эксперт, но практикуюсь)",
                 "achiev-section-title": "Достижения и сертификаты",
-                "achiev-1-title": "Школьные олимпиады",
-                "achiev-1-desc": "Участие в школьных олимпиадах по математике и информатике, развитие логики и аналитического мышления.",
                 "achiev-2-title": "Языковые сертификаты",
                 "achiev-2-desc": "Активная подготовка к международным экзаменам TOPIK и IELTS для обучения в интернациональной среде.",
                 "edu-title": "Моя цель",
                 "ku-title": "Поступление на факультет компьютерной инженерии (컴퓨터공학)",
+                "ku-why-label": "Почему именно 고려대?",
+                "ku-why-val": "Университет Корё славится своими выдающимися инженерными программами. Я хочу изучать здесь Computer Science, чтобы углубить знания в разработке ПО.",
                 "footer-rights": "© 2026 Ле Виталий. Все права защищены.",
                 "footer-contact": "Связь: ig: talliyyy"
             },
@@ -403,6 +411,8 @@
                 "proj2-desc": "ANTIGRAVITY AI에서 제작되었습니다.",
                 "proj3-title": "웹 개발 인터랙티브 샌드박스",
                 "proj3-desc": "HTML, CSS, JavaScript의 작동 원리를 직접 체험해보세요! 렌더링 파이프라인, 박스 모델 조작, Flexbox, 애니메이션 및 비동기 통신 등 핵심 기능들을 실시간으로 테스트할 수 있습니다.",
+                "proj4-title": "새 프로젝트 제목",
+                "proj4-desc": "여기에 네 번째 프로젝트 설명을 입력하세요.",
                 
                 "img-place": "이미지 자리",
                 "about-section-title": "나에 대하여",
@@ -418,12 +428,12 @@
                 "lang-jp": "일본어",
                 "lang-note": "* 학교에서 배우고 있는 언어들입니다 (열심히 연습 중입니다)",
                 "achiev-section-title": "수상 및 인증",
-                "achiev-1-title": "교내 경시대회",
-                "achiev-1-desc": "수학 및 정보학 경시대회에 참가하여 논리력과 분석적 사고를 키웠습니다.",
                 "achiev-2-title": "어학 능력 증명",
                 "achiev-2-desc": "국제적인 학업 환경을 준비하기 위해 TOPIK 및 IELTS 시험을 적극적으로 준비하고 있습니다.",
                 "edu-title": "나의 목표",
                 "ku-title": "목표: 컴퓨터공학과 입학",
+                "ku-why-label": "왜 고려대학교인가?",
+                "ku-why-val": "고려대학교는 뛰어난 공학 프로그램으로 유명합니다. 저는 이곳에서 컴퓨터공학을 전공하여 소프트웨어 공학 지식을 심화하고 싶습니다.",
                 "footer-rights": "© 2026 예비탈리. 모든 권리 보유.",
                 "footer-contact": "연락처: ig: talliyyy"
             }
