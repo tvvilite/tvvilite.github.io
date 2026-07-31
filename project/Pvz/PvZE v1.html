@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plants vs Zombies - Braaains Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace, sans-serif;
+            font-weight: bold;
+            background-color: #0f151a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: white;
+        }
+        #game-container {
+            width: 98vw;
+            max-width: 1600px;
+            height: 94vh;
+            max-height: 950px;
+            background-color: #2b3a29;
+            position: relative;
+            border: 6px solid #141d13;
+            border-radius: 14px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.95);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            image-rendering: pixelated;
+        }
+
+        /* Экраны меню */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 21, 26, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .screen.hidden {
+            display: none !important;
+        }
+        .menu-title {
+            font-size: 64px;
+            color: #a3f78e;
+            margin-bottom: 40px;
+            text-shadow: 4px 4px 0 #000;
+            text-align: center;
+        }
+        .menu-btn {
+            background: #4c6246;
+            border: 4px solid #141d13;
+            color: white;
+            font-size: 32px;
+            font-family: inherit;
+            font-weight: bold;
+            padding: 15px 40px;
+            margin: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            min-width: 300px;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover {
+            background: #5c7855;
+            border-color: #a3f78e;
+            transform: scale(1.05);
+        }
+        .controls-text {
+            font-size: 36px;
+            color: #f7da1a;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* Экран поражения */
+        #game-over-screen {
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+        }
+        .game-over-title {
+            font-size: 72px;
+            color: #ff3333;
+            margin-bottom: 50px;
+            text-align: center;
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.6);
+            animation: glow-red 1s infinite alternate;
+        }
+        @keyframes glow-red {
+            0% { text-shadow: 0 0 15px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 0, 0, 0.4); transform: scale(0.98); }
+            100% { text-shadow: 0 0 25px rgba(255, 0, 0, 1), 0 0 50px rgba(255, 0, 0, 0.8); transform: scale(1.02); }
+        }
+
+        /* Игровой интерфейс */
+        #game-ui {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #top-ui {
+            height: 100px;
+            background-color: #2d3d27;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            border-bottom: 6px solid #141d13;
+            gap: 35px;
+            z-index: 50;
+        }
+        #sun-counter {
+            background-color: #f7da1a;
+            color: #4a3c10;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: 4px solid #a38d1c;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            min-width: 160px;
+            justify-content: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        #peashooter-slot {
+            width: 85px;
+            height: 85px;
+            background-color: #4c6246;
+            border: 4px solid #141d13;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: transform 0.1s;
+        }
+        #peashooter-slot:hover {
+            transform: scale(1.1);
+        }
+        #peashooter-slot.active {
+            border-color: #a3f78e;
+            background-color: #5c7855;
+            box-shadow: 0 0 20px #a3f78e;
+        }
+        #peashooter-slot img {
+            width: 78px;
+            height: 78px;
+            object-fit: contain;
+        }
+        #peashooter-slot .cost {
+            position: absolute;
+            bottom: -26px;
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        #lawn-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #lawn {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)), url('true gazon.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 100% 100%;
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            image-rendering: pixelated;
+        }
+        .lawn-cell {
+            border: 1px dashed rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        .lawn-cell:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Обновленный полупрозрачный баннер без красного */
+        #warning-banner {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.55);
+            color: #f7da1a;
+            font-size: 60px;
+            font-weight: 900;
+            text-align: center;
+            padding: 35px 0;
+            border-top: 8px solid #f7da1a;
+            border-bottom: 8px solid #f7da1a;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            text-shadow: 3px 3px 0 #000;
+            box-shadow: 0 0 30px rgba(247, 218, 26, 0.4);
+            letter-spacing: 4px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        #tutorial-text {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #a3f78e;
+            font-size: 42px;
+            padding: 15px 40px;
+            border: 4px solid #a3f78e;
+            border-radius: 12px;
+            z-index: 300;
+            text-align: center;
+            text-shadow: 3px 3px 0 #000;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(0.98); opacity: 0.8; }
+            100% { transform: translateY(-50%) scale(1.02); opacity: 1; }
+        }
+
+        .entity {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+        .plant img, .zombie img, .pea img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: bottom;
+        }
+        .pea img {
+            object-position: center;
+        }
+
+        .fallback-plant { background-color: #2ecc71; border-radius: 50%; width: 95%; height: 95%; border: 4px solid #27ae60; }
+        .fallback-zombie { background-color: #7f8c8d; border-radius: 14px; width: 85%; height: 98%; border: 4px solid #34495e; }
+        .fallback-pea { background-color: #2ecc71; border-radius: 50%; width: 35px; height: 35px; }
+
+        .sun {
+            width: 75px;
+            height: 75px;
+            background-color: #fce76a;
+            border-radius: 50%;
+            border: 6px solid #f7da1a;
+            box-shadow: 0 0 25px rgba(252, 231, 106, 1);
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            top: 0px;
+            z-index: 150;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <!-- MAIN MENU -->
+        <div id="main-menu" class="screen">
+            <div class="menu-title" id="t-game-title">PLANTS VS ZOMBIES</div>
+            <button class="menu-btn" id="btn-tutorial" onclick="startTutorial()">Tutorial</button>
+            <button class="menu-btn" id="btn-play" onclick="startGame()">Play</button>
+            <button class="menu-btn" id="btn-settings" onclick="showScreen('settings-menu')">Settings</button>
+            <button class="menu-btn" id="btn-controls" onclick="showScreen('controls-menu')">Controls</button>
+        </div>
+
+        <!-- SETTINGS MENU -->
+        <div id="settings-menu" class="screen hidden">
+            <div class="menu-title" id="t-settings">Settings</div>
+            <button class="menu-btn" id="btn-lang" onclick="toggleLanguage()">Language: English</button>
+            <button class="menu-btn" id="btn-back-settings" onclick="showScreen('main-menu')">Back</button>
+        </div>
+
+        <!-- CONTROLS MENU -->
+        <div id="controls-menu" class="screen hidden">
+            <div class="menu-title" id="t-controls">Controls</div>
+            <div class="controls-text" id="t-controls-desc">Space = Pause</div>
+            <button class="menu-btn" id="btn-back-controls" onclick="showScreen('main-menu')">Back</button>
+        </div>
+
+        <!-- PAUSE MENU -->
+        <div id="pause-menu" class="screen hidden">
+            <div class="menu-title" id="t-pause">PAUSED</div>
+            <button class="menu-btn" id="btn-resume" onclick="togglePause()">Resume</button>
+            <button class="menu-btn" id="btn-back-main" onclick="goToMainMenu()">Main Menu</button>
+        </div>
+
+        <!-- GAME OVER MENU -->
+        <div id="game-over-screen" class="screen hidden">
+            <div class="game-over-title" id="t-game-over">THE ZOMBIES ATE YOUR BRAINS!</div>
+            <button class="menu-btn" id="btn-back-main-go" onclick="goToMainMenu()">Main Menu</button>
+        </div>
+
+        <!-- GAME UI -->
+        <div id="game-ui">
+            <div id="top-ui">
+                <div id="sun-counter">
+                    ☀️ <span id="sun-amount">100</span>
+                </div>
+                <div id="peashooter-slot" onclick="selectPlant('peashooter')">
+                    <img src="peashoter-removebg-preview.png" alt="🌱" onerror="this.outerHTML='<div class=\'fallback-plant\'></div>'">
+                    <span class="cost">100</span>
+                </div>
+            </div>
+
+            <div id="lawn-container">
+                <div id="lawn"></div>
+                <div id="warning-banner" id="t-warning">⚠️ ZOMBIES ARE COMING! ⚠️</div>
+                <div id="tutorial-text" class="hidden">Place a peashooter for defense!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Локализация (Языки) ---
+        const langs = ['en', 'ru', 'ko'];
+        let currentLangIdx = 0;
+        const translations = {
+            en: {
+                play: "Play", tutorialBtn: "Tutorial", settings: "Settings", controls: "Controls", 
+                langBtn: "Language: English", back: "Back", pause: "PAUSED", 
+                resume: "Resume", mainMenu: "Main Menu", controlsDesc: "Space = Pause",
+                warning: "⚠️ ZOMBIES ARE COMING! ⚠️", gameTitle: "PLANTS VS ZOMBIES",
+                gameOver: "THE ZOMBIES ATE YOUR BRAINS!",
+                tutInstruction: "Place a peashooter for defense!", tutComplete: "Tutorial Completed!"
+            },
+            ru: {
+                play: "Играть", tutorialBtn: "Туториал", settings: "Настройки", controls: "Управление", 
+                langBtn: "Язык: Русский", back: "Назад", pause: "ПАУЗА", 
+                resume: "Продолжить", mainMenu: "Главное меню", controlsDesc: "Пробел = Пауза",
+                warning: "⚠️ ЗОМБИ НАСТУПАЮТ! ⚠️", gameTitle: "РАСТЕНИЯ ПРОТИВ ЗОМБИ",
+                gameOver: "ЗОМБИ СЪЕЛИ ВАШИ МОЗГИ!",
+                tutInstruction: "Поставь горохострел для обороны!", tutComplete: "Туториал пройден!"
+            },
+            ko: {
+                play: "플레이", tutorialBtn: "튜토리얼", settings: "설정", controls: "조작", 
+                langBtn: "언어: 한국어", back: "뒤로", pause: "일시정지", 
+                resume: "계속", mainMenu: "메인 메뉴", controlsDesc: "Space = 일시정지",
+                warning: "⚠️ 좀비가 몰려온다! ⚠️", gameTitle: "식물 대 좀비",
+                gameOver: "좀비가 당신의 뇌를 먹었습니다!",
+                tutInstruction: "방어를 위해 완두콩 슈터를 배치하세요!", tutComplete: "튜토리얼 완료!"
+            }
+        };
+
+        function applyTranslations() {
+            const t = translations[langs[currentLangIdx]];
+            
+            document.getElementById('btn-play').innerText = t.play;
+            document.getElementById('btn-tutorial').innerText = t.tutorialBtn;
+            document.getElementById('btn-settings').innerText = t.settings;
+            document.getElementById('btn-controls').innerText = t.controls;
+            document.getElementById('btn-lang').innerText = t.langBtn;
+            document.getElementById('btn-back-settings').innerText = t.back;
+            document.getElementById('btn-back-controls').innerText = t.back;
+            document.getElementById('btn-resume').innerText = t.resume;
+            document.getElementById('btn-back-main').innerText = t.mainMenu;
+            document.getElementById('btn-back-main-go').innerText = t.mainMenu;
+            
+            document.getElementById('t-settings').innerText = t.settings;
+            document.getElementById('t-controls').innerText = t.controls;
+            document.getElementById('t-controls-desc').innerText = t.controlsDesc;
+            document.getElementById('t-pause').innerText = t.pause;
+            document.getElementById('warning-banner').innerText = t.warning;
+            document.getElementById('t-game-title').innerText = t.gameTitle;
+            document.getElementById('t-game-over').innerText = t.gameOver;
+        }
+
+        function toggleLanguage() {
+            currentLangIdx = (currentLangIdx + 1) % langs.length;
+            applyTranslations();
+        }
+
+        // --- Управление экранами ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            
+            if (screenId === 'main-menu' || screenId === 'settings-menu' || screenId === 'controls-menu') {
+                document.getElementById('game-ui').style.display = 'none';
+            }
+            
+            if (screenId) {
+                document.getElementById(screenId).classList.remove('hidden');
+            }
+        }
+
+        // --- Игровые константы и переменные ---
+        const COLS = 9;
+        const PEASHOOTER_COST = 100;
+        const PLANT_HP = 300;
+        const PEA_DAMAGE = 20;
+        const ZOMBIE_HP = 200;
+        const ZOMBIE_DPS = 100;
+        const PEASHOOTER_FIRE_RATE = 1400;
+
+        let currentRows = 5;
+        let cellWidth = 0, cellHeight = 0;
+        let sunAmount = 100;
+        let selectedPlant = null;
+        let plants = [], zombies = [], peas = [], suns = [];
+        
+        let gameState = "MENU";
+        let isTutorial = false;
+        let lastTime = 0;
+        let spawnZombieTimer = null;
+        let spawnSunTimer = null;
+
+        const lawn = document.getElementById('lawn');
+        const sunAmountSpan = document.getElementById('sun-amount');
+        const warningBanner = document.getElementById('warning-banner');
+        const tutorialText = document.getElementById('tutorial-text');
+
+        const peashooterImgUrl = "peashoter-removebg-preview.png";
+        const peaImgUrl = "pea (2).png";
+        const zombieFullImgUrl = "zombie.png";
+        const zombieArmlessImgUrl = "zombie no arm.png";
+
+        // --- Игровая логика ---
+        function startGameBase() {
+            showScreen(null);
+            document.getElementById('game-ui').style.display = 'flex';
+            
+            lawn.innerHTML = '';
+            plants = []; zombies = []; peas = []; suns = [];
+            sunAmount = isTutorial ? 100 : 100;
+            updateSunUI();
+            
+            lawn.style.gridTemplateRows = `repeat(${currentRows}, 1fr)`;
+            
+            // Если туториал - показываем только одну центральную полосу для атмосферы
+            if (isTutorial) {
+                lawn.style.height = '20%';
+                lawn.style.marginTop = 'auto';
+                lawn.style.marginBottom = 'auto';
+                lawn.style.backgroundSize = '100% 500%';
+                lawn.style.backgroundPosition = 'center';
+            } else {
+                lawn.style.height = '100%';
+                lawn.style.margin = '0';
+                lawn.style.backgroundSize = '100% 100%';
+                lawn.style.backgroundPosition = 'center center';
+            }
+
+            createLawn();
+            updateCellDimensions();
+            
+            gameState = "PLAYING";
+            lastTime = performance.now();
+            
+            clearTimeout(spawnSunTimer);
+            clearTimeout(spawnZombieTimer);
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            isTutorial = false;
+            currentRows = 5;
+            
+            // Сброс стилей туториала на всякий случай
+            tutorialText.style.bottom = '5%';
+            tutorialText.style.top = 'auto';
+            tutorialText.style.transform = 'translateX(-50%)';
+            tutorialText.style.fontSize = '42px';
+            tutorialText.style.opacity = '1';
+            tutorialText.classList.add('hidden');
+            
+            startGameBase();
+            
+            startSunSpawn();
+            setTimeout(triggerZombieWave, 2000);
+        }
+
+        function startTutorial() {
+            isTutorial = true;
+            currentRows = 1; // Только 1 ряд
+            
+            // Сброс стилей для запуска
+            tutorialText.style.bottom = '5%';
+            tutorialText.style.top = 'auto';
+            tutorialText.style.transform = 'translateX(-50%)';
+            tutorialText.style.fontSize = '42px';
+            tutorialText.style.opacity = '1';
+
+            startGameBase();
+            
+            tutorialText.innerText = translations[langs[currentLangIdx]].tutInstruction;
+            tutorialText.classList.remove('hidden');
+        }
+
+        function goToMainMenu() {
+            gameState = "MENU";
+            tutorialText.classList.add('hidden');
+            warningBanner.style.display = 'none';
+            showScreen('main-menu');
+        }
+
+        function togglePause() {
+            if (gameState === "PLAYING") {
+                gameState = "PAUSED";
+                showScreen('pause-menu');
+            } else if (gameState === "PAUSED") {
+                gameState = "PLAYING";
+                showScreen(null);
+                lastTime = performance.now();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault(); 
+                if (gameState === "PLAYING" || gameState === "PAUSED") {
+                    togglePause();
+                }
+            }
+        });
+
+        function updateCellDimensions() {
+            if (document.getElementById('game-ui').style.display !== 'none') {
+                const rect = lawn.getBoundingClientRect();
+                cellWidth = rect.width / COLS;
+                cellHeight = rect.height / currentRows;
+            }
+        }
+
+        function updateSunUI() {
+            sunAmountSpan.textContent = sunAmount;
+        }
+
+        function createLawn() {
+            for (let r = 0; r < currentRows; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'lawn-cell';
+                    cell.onclick = () => placePlant(r, c);
+                    lawn.appendChild(cell);
+                }
+            }
+        }
+
+        function selectPlant(plantType) {
+            if (plantType === 'peashooter') {
+                const slot = document.getElementById('peashooter-slot');
+                if (selectedPlant === 'peashooter') {
+                    selectedPlant = null;
+                    slot.classList.remove('active');
+                } else {
+                    selectedPlant = 'peashooter';
+                    slot.classList.add('active');
+                }
+            }
+        }
+
+        function placePlant(row, col) {
+            if (selectedPlant && gameState === "PLAYING") {
+                if (sunAmount >= PEASHOOTER_COST) {
+                    const existingPlant = plants.find(p => p.row === row && p.col === col);
+                    if (!existingPlant) {
+                        sunAmount -= PEASHOOTER_COST;
+                        updateSunUI();
+                        plants.push(new Peashooter(row, col));
+                        selectedPlant = null;
+                        document.getElementById('peashooter-slot').classList.remove('active');
+
+                        // Логика Туториала: Реакция на установку растения
+                        if (isTutorial && plants.length === 1) {
+                            tutorialText.classList.add('hidden');
+                            warningBanner.innerText = translations[langs[currentLangIdx]].warning;
+                            warningBanner.style.display = 'flex';
+                            
+                            // Через 2.5 секунды выпускаем ОДНОГО зомби
+                            setTimeout(() => {
+                                warningBanner.style.display = 'none';
+                                zombies.push(new Zombie(0)); // На единственную дорожку (row 0)
+                            }, 2500);
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Классы сущностей ---
+        class Peashooter {
+            constructor(row, col) {
+                this.row = row; this.col = col; this.hp = PLANT_HP;
+                this.element = document.createElement('div');
+                this.element.className = 'entity plant';
+                
+                // РАЗМЕР
+                const pSize = cellHeight * 1.5;
+                this.element.style.width = `${pSize}px`;
+                this.element.style.height = `${pSize}px`;
+                this.element.style.top = `${row * cellHeight + (cellHeight - pSize)}px`;
+                this.element.style.left = `${col * cellWidth + (cellWidth - pSize) / 2}px`;
+                this.element.style.zIndex = row * 10 + 2;
+
+                const img = document.createElement('img');
+                img.src = peashooterImgUrl;
+                img.onerror = () => { img.remove(); this.element.innerHTML = '<div class="fallback-plant"></div>'; };
+                this.element.appendChild(img);
+                lawn.appendChild(this.element);
+
+                this.lastShotTime = 0;
+            }
+
+            update(timestamp) {
+                if (timestamp - this.lastShotTime >= PEASHOOTER_FIRE_RATE) {
+                    const zombiesInRow = zombies.filter(z => z.row === this.row && z.x > this.col * cellWidth);
+                    if (zombiesInRow.length > 0) {
+                        peas.push(new PeaBullet(this.row, (this.col + 0.6) * cellWidth));
+                        this.lastShotTime = timestamp;
+                    }
+                }
+            }
+
+            takeDamage(damage) {
+                this.hp -= damage;
+                if (this.hp <= 0) this.die();
+            }
+
+            die() {
+                this.element.remove();
+                plants = plants.filter(p => p !== this);
+            }
+        }
+
+        class Zombie {
+            constructor(row) {
+                this.row = row; this.x = lawn.clientWidth; this.hp = ZOMBIE_HP;
+                this.secondsPerSquare = 4.7 + Math.random() * 0.3;
+
+                // РАЗМЕР
+                const zWidth = cellWidth * 1.50;
+                const zHeight = cellHeight * 1.80;
+                
+                this.element = document.createElement('div');
+                this.element.className = 'entity zombie';
+                this.element.style.width = `${zWidth}px`;
+                this.element.style.height = `${zHeight}px`;
+                
+                const verticalOffset = cellHeight * 0.02;
+                this.element.style.top = `${row * cellHeight + cellHeight - zHeight + verticalOffset}px`;
+                this.element.style.left = `${this.x}px`;
+                this.element.style.zIndex = row * 10 + 5;
+
+                this.img = document.createElement('img');
+                this.img.src = zombieFullImgUrl;
+                this.img.onerror = () => { this.img.remove(); this.element.innerHTML = '<div class="fallback-zombie"></div>'; };
+                this.element.appendChild(this.img);
+                lawn.appendChild(this.element);
+                this.eating = null;
+            }
+
+            update(dt) {
+                if (!this.eating) {
+                    const speedPxPerSec = cellWidth / this.secondsPerSquare;
+                    this.x -= speedPxPerSec * dt;
+                    this.element.style.left = `${this.x}px`;
+                } else {
+                    this.eating.takeDamage(ZOMBIE_DPS * dt);
+                }
+
+                this.eating = plants.find(plant => plant.row === this.row && this.x > plant.col * cellWidth - 15 && this.x < (plant.col + 0.4) * cellWidth) || null;
+
+                if (this.x <= -30) gameOver();
+            }
+
+            takeDamage(damage) {
+                this.hp -= damage;
+                if (this.hp <= 50 && this.img && this.img.src && !this.img.src.includes(zombieArmlessImgUrl)) {
+                    this.img.src = zombieArmlessImgUrl;
+                }
+                if (this.hp <= 0) this.die();
+            }
+
+            die() {
+                this.element.style.transition = 'transform 0.4s, opacity 0.4s';
+                this.element.style.transform = 'rotate(-90deg) translateY(50px)';
+                this.element.style.opacity = '0';
+                setTimeout(() => this.element.remove(), 400);
+                zombies = zombies.filter(z => z !== this);
+
+                // Логика Туториала: Проверка на убийство зомби
+                if (isTutorial && zombies.length === 0) {
+                    setTimeout(() => {
+                        // Центрируем текст и показываем
+                        tutorialText.innerText = translations[langs[currentLangIdx]].tutComplete;
+                        tutorialText.style.bottom = 'auto';
+                        tutorialText.style.top = '50%';
+                        tutorialText.style.transform = 'translate(-50%, -50%)';
+                        tutorialText.style.fontSize = '64px';
+                        tutorialText.classList.remove('hidden');
+                        
+                        setTimeout(() => {
+                            // Плавно растворяем текст
+                            tutorialText.style.opacity = '0';
+                            
+                            setTimeout(() => {
+                                // Прячем кнопку навсегда и выходим в меню
+                                document.getElementById('btn-tutorial').style.display = 'none'; 
+                                goToMainMenu();
+                            }, 600); // Небольшая задержка после растворения
+                        }, 2500); // 2.5 секунды надпись висит в центре
+                    }, 1000);
+                }
+            }
+        }
+
+        class PeaBullet {
+            constructor(row, x) {
+                this.row = row; this.x = x; this.speed = cellWidth * 4.5;
+
+                // РАЗМЕР
+                const pSize = cellHeight * 0.55;
+                this.element = document.createElement('div');
+                this.element.className = 'entity pea';
+                this.element.style.width = `${pSize}px`;
+                this.element.style.height = `${pSize}px`;
+                
+                // ВЫСОТА ГОРОШИНЫ
+                const verticalOffset = - (cellHeight * 0.10); 
+                this.element.style.top = `${row * cellHeight + cellHeight / 2 - pSize / 2 + verticalOffset}px`;
+                this.element.style.left = `${this.x}px`;
+                this.element.style.zIndex = row * 10 + 3;
+
+                const img = document.createElement('img');
+                img.src = peaImgUrl;
+                img.onerror = () => { img.remove(); this.element.innerHTML = '<div class="fallback-pea"></div>'; };
+                this.element.appendChild(img);
+                lawn.appendChild(this.element);
+            }
+
+            update(dt) {
+                this.x += this.speed * dt;
+                this.element.style.left = `${this.x}px`;
+
+                const hitZombie = zombies.find(z => z.row === this.row && this.x > z.x && this.x < z.x + cellWidth * 0.5);
+                if (hitZombie) {
+                    hitZombie.takeDamage(PEA_DAMAGE);
+                    this.destroy();
+                } else if (this.x >= lawn.clientWidth) {
+                    this.destroy();
+                }
+            }
+
+            destroy() {
+                this.element.remove();
+                peas = peas.filter(p => p !== this);
+            }
+        }
+
+        class Sun {
+            constructor() {
+                this.element = document.createElement('div');
+                this.element.className = 'sun';
+                
+                const maxX = lawn.clientWidth - 90;
+                this.element.style.left = `${20 + Math.random() * maxX}px`;
+                this.element.onclick = () => this.collect();
+                lawn.appendChild(this.element);
+
+                const targetY = 20 + Math.random() * (lawn.clientHeight - 100);
+                setTimeout(() => { this.element.style.transform = `translateY(${targetY}px)`; }, 20);
+            }
+
+            collect() {
+                if(gameState !== "PLAYING") return;
+                sunAmount += 25;
+                updateSunUI();
+                this.element.style.transform += ' scale(0)';
+                this.element.style.opacity = '0';
+                setTimeout(() => this.element.remove(), 400);
+                suns = suns.filter(s => s !== this);
+            }
+        }
+
+        function startSunSpawn() {
+            function scheduleNext() {
+                if (gameState === "PLAYING") suns.push(new Sun());
+                if (gameState !== "GAMEOVER") {
+                    spawnSunTimer = setTimeout(scheduleNext, 8000 + Math.random() * 4000);
+                }
+            }
+            spawnSunTimer = setTimeout(scheduleNext, 5000);
+        }
+
+        function triggerZombieWave() {
+            if (gameState !== "PLAYING") return;
+            warningBanner.innerText = translations[langs[currentLangIdx]].warning;
+            warningBanner.style.display = 'flex';
+            setTimeout(() => {
+                warningBanner.style.display = 'none';
+                spawnZombies();
+            }, 3000);
+        }
+
+        function spawnZombies() {
+            if (gameState === "PLAYING") {
+                zombies.push(new Zombie(Math.floor(Math.random() * currentRows)));
+            }
+            if (gameState !== "GAMEOVER") {
+                spawnZombieTimer = setTimeout(spawnZombies, 12000);
+            }
+        }
+
+        function gameLoop(timestamp) {
+            if (gameState !== "PLAYING") return;
+
+            if (!lastTime) lastTime = timestamp;
+            const dt = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            plants.forEach(p => p.update(timestamp));
+            zombies.forEach(z => z.update(dt));
+            peas.forEach(p => p.update(dt));
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            gameState = "GAMEOVER";
+            showScreen('game-over-screen');
+        }
+
+        window.addEventListener('resize', updateCellDimensions);
+
+        applyTranslations();
+        showScreen('main-menu');
+    </script>
+</body>
+</html>
